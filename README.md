@@ -92,9 +92,17 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
 -----------------
 ### 2 - Stack e Definições:
 - **Domínios:**
-    - E-commerce { `[checkout]`, `[payment]` }
-        - `[checkout]`: Guarda as informações de checkout (cartão de crédito/débito, dados do usuário).
-        - `[payment]`: Possuí a responsabilidade de cobrar do cartão com o valor de uma compra XPTO.
+    ```
+      ┌────────────────────────────────┐
+      │          E-COMMERCE            │
+      │ ┌──────────┐     ┌───────────┐ │
+      │ │ CHECKOUT │     │  PAYMENT  │ │
+      │ └──────────┘     └───────────┘ │
+      └────────────────────────────────┘
+    ```   
+
+    - `[checkout]`: Guarda as informações de checkout (cartão de crédito/débito, dados do usuário).
+    - `[payment]`: Possuí a responsabilidade de cobrar do cartão com o valor de uma compra XPTO.
     
 - **Arquitetura:**
     - `[Checkout]`:
@@ -106,12 +114,31 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     - **Explicação:** Abaixo, checkout-api, irá gerar um evento para o kafka, onde payment-api estará escutando.
         Ao finaliza o processamento de pagamento, payment-api irá retonar outro evento para o kafka onde checkout-api, irá escutar.
 
-```
-    [checkout-front] -> [checkout-api] -> [kafka] -> [payment-api]
-```
+    ```
+      ┌──────────────┐   ┌────────────┐   ┌─────┐   ┌───────────┐
+      │checkout-front├──►│checkout-api├──►│kafka├──►│payment-api│
+      └──────────────┘   └───────────▲┘   └┬───▲┘   └┬──────────┘
+                                     └─────┘   └─────┘
+    ```
 
 - **Apache Kafka;**
-  - **Streaming Data:** Fluxo de dados
+  - **Streaming Data:** Fluxo contínuo de dados
+    ````
+    ┌────────────────────────────────────────────────────────────────┐
+    │  ┌────────────┐                             ┌──────────────┐   │
+    │  │ Produtor 1 ├─────┐                 ┌────►│ Consumidor 1 │   │
+    │  └────────────┘     │                 │     └──────────────┘   │
+    │                     │                 │                        │
+    │  ┌────────────┐     │    ┌────────┐   │     ┌──────────────┐   │
+    │  │ Produtor 2 ├─────┼───►│ Broker ├───┼────►│ Consumidor 2 │   │
+    │  └────────────┘     │    └────────┘   │     └──────────────┘   │
+    │                     │                 │                        │
+    │  ┌────────────┐     │                 │     ┌──────────────┐   │
+    │  │ Produtor N ├─────┘                 └────►│ Consumidor N │   │
+    │  └────────────┘                             └──────────────┘   │
+    └────────────────────────────────────────────────────────────────┘
+    ````
+    
     
 - **Zookeeper**;
 - **Schema Registry**;
