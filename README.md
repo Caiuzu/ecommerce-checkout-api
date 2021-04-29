@@ -141,7 +141,8 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
         │  │ Produtor N ├─────┘                 └────►│ Consumidor N │   │
         │  └────────────┘                             └──────────────┘   │
         └────────────────────────────────────────────────────────────────┘
-        Os produtores irão produzir os informações para um broker e disponibilizá-los para os consumidores.
+        Os produtores irão produzir os informações para um broker e disponibilizá-los 
+        para os consumidores.
         ````
     - O **Apache Kafka**, é uma plataforma distribuída de mensagens e streaming. 
       Diferente do Redis, rabbitMQ, que são sistemas de mensagerias.
