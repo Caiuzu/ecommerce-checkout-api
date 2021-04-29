@@ -56,7 +56,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     
 #### Instalando Gradle:
   - Baixe: https://gradle.org/releases/ 
-    - (binary-only - gradle-7.0-bin.zip)[https://gradle.org/next-steps/?version=7.0&format=bin]
+    - [binary-only - gradle-7.0-bin.zip](https://gradle.org/next-steps/?version=7.0&format=bin)
 - Extrair os arquivos por exemplo no diretório raiz C:
 - Addicionar nas variaveis de ambiente, em PATH com a localização do bin, por exemplo: C:\Program Files\gradle-7.0\bin
 - Em seguida vamos testar no terminal com o comando: `gradle -v`
@@ -122,25 +122,89 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     ```
 
 - **Apache Kafka;**
-  - **Streaming Data:** Fluxo contínuo de dados
-    ````
-    ┌────────────────────────────────────────────────────────────────┐
-    │  ┌────────────┐                             ┌──────────────┐   │
-    │  │ Produtor 1 ├─────┐                 ┌────►│ Consumidor 1 │   │
-    │  └────────────┘     │                 │     └──────────────┘   │
-    │                     │                 │                        │
-    │  ┌────────────┐     │    ┌────────┐   │     ┌──────────────┐   │
-    │  │ Produtor 2 ├─────┼───►│ Broker ├───┼────►│ Consumidor 2 │   │
-    │  └────────────┘     │    └────────┘   │     └──────────────┘   │
-    │                     │                 │                        │
-    │  ┌────────────┐     │                 │     ┌──────────────┐   │
-    │  │ Produtor N ├─────┘                 └────►│ Consumidor N │   │
-    │  └────────────┘                             └──────────────┘   │
-    └────────────────────────────────────────────────────────────────┘
-    ````
+  
+    - Primeiramente, temos que entender oque é **Streaming Data:** É basicamente um fluxo contínuo de dados, como um rio
+      - Para quê e por queê utiliza: Possuí a capacidade de coletar, processar e armazenar um grande volume de dados em tempo real.
+      Alta disponibilidade dos dados e confiabilidade.
+        
+        ````
+        ┌────────────────────────────────────────────────────────────────┐
+        │  ┌────────────┐                             ┌──────────────┐   │
+        │  │ Produtor 1 ├─────┐                 ┌────►│ Consumidor 1 │   │
+        │  └────────────┘     │                 │     └──────────────┘   │
+        │                     │                 │                        │
+        │  ┌────────────┐     │    ┌────────┐   │     ┌──────────────┐   │
+        │  │ Produtor 2 ├─────┼───►│ Broker ├───┼────►│ Consumidor 2 │   │
+        │  └────────────┘     │    └────────┘   │     └──────────────┘   │
+        │                     │                 │                        │
+        │  ┌────────────┐     │                 │     ┌──────────────┐   │
+        │  │ Produtor N ├─────┘                 └────►│ Consumidor N │   │
+        │  └────────────┘                             └──────────────┘   │
+        └────────────────────────────────────────────────────────────────┘
+        Os produtores irão produzir os informações para um broker e disponibilizá-los para os consumidores.
+        ````
+    - O **Apache Kafka**, é uma plataforma distribuída de mensagens e streaming. 
+      Diferente do Redis, rabbitMQ, que são sistemas de mensagerias.
+      - A ideia do streaming no kafka é o mesmo de um broadcast com TCP em redes, ele replica para outros IPs, 
+        mas só quem está pronto para recebe-lo irá consumir o dado.
     
-    
-- **Zookeeper**;
+        ```
+        ┌───────────────────────────────────────────────────────────────┐
+        │                         Producers                             │
+        │                     ┌─────┐                                   │
+        │                     │ APP ├───┐                               │
+        │                     └─────┘   │          ┌─────┐              │
+        │                               │      ┌──►│ APP │              │
+        │              ┌────┐           │      │   └─────┘              │
+        │              │ DB ├──┐        ▼      │                        │
+        │              └────┘  │   ┌────────┐◄─┘     Stream             │
+        │         Connector    ├──►│ Broker │      Processors           │
+        │              ┌────┐  │   └────────┘◄─┐                        │
+        │              │ DB ├──┘        ▲      │                        │
+        │              └────┘           │      │   ┌─────┐              │
+        │                               │      └──►│ APP │              │
+        │                     ┌─────┐   │          └─────┘              │
+        │                     │ APP │◄──┘                               │
+        │                     └─────┘                                   │
+        │                        Consumers                              │
+        └───────────────────────────────────────────────────────────────┘
+        ```
+- **Conceitos**:
+    - `Connectors`: conseguimos conectar o banco e disparar por exemplo um evento sempre que for feito um insert.
+    - `Mensagens`: A informação produzida pelo produtor
+    - `Tópicos`: Meio por onde o produtor vai postar a mensagem e o consumidor consumirá
+      - Pode ser formado por _N_ partições. Quando um produtor publica uma mensagem, vai para uma dada partição
+        - Cada partição possuí uma ordem de mensagens, de forma que conseguimos garantir a ordem das partições, mas não dos itens dentro destas.
+            ```      
+            Partição 1 -> [1] [2] [3] [4] [5] [6] [7]
+            Partição 2 -> [1] [2] [3] [4] [5]
+            Partição 3 -> [1] [2] [3] [4] [5] [6]
+            ```  
+          - Cada `offset`, como é chamada cada posição dentro da partição, em determinado ciclo de vida da aplicação, 
+          será lido por mais de um consumidor, mesmo que este não seja quem irá consumi-lo. 
+          Lembrando que todas as mensagens produzidas podem ser escutadas por todos os consumidores.</br></br>
+            
+    - `Produtores`: quem produz a mensagem;
+    - `Consumidores`: quem consome a mensagem;
+    - `Brokers`: As instâncias do Kafka;
+    - `Clusters`: Conjuntos de Brokers;
+    - `Apache Zookeeper`: Gerenciador de Clusters;
+      ```
+                                    Cluster
+        ┌─────────────────────────────────────────────────────────────┐
+        │                                                             │
+        │  ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐  │
+        │  │ Broker 1 │   │ Broker 2 │   │ Broker 3 │   │ Broker 4 │  │
+        │  └────┬─────┘   └───┬──────┘   └─────┬────┘   └────┬─────┘  │
+        │       │             │                │             │        │
+        └───────┼─────────────┼────────────────┼─────────────┼────────┘
+                │             └───────┌────────┘             │
+                │                     │                      │
+        ┌───────▼─────────────────────▼──────────────────────▼────────┐
+        │                         Zookeper                            │
+        └─────────────────────────────────────────────────────────────┘
+      ```
+
 - **Schema Registry**;
 - **Apache Avro**;
 - **Serviços de Stream**;
