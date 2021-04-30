@@ -249,3 +249,16 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
   - Google Pub/Sub
   - Kafka Local com Docker
 
+
+- **Stack**:
+  - Back:
+     - Spring Boot
+     - Spring Web
+     - Spring Cloud Stream
+     - Spring Cloud Sleuth 
+   
+  - Front:
+    - Bootstrap
+---      
+### Inicializando o projeto:
+Vamos inicializar nosso projeto através do [spring initializr](http://start.spring.io)
