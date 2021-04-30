@@ -189,7 +189,12 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     - `Consumidores`: quem consome a mensagem;
     - `Brokers`: As instâncias do Kafka;
     - `Clusters`: Conjuntos de Brokers;
+      - Quando formamos um Cluster Kafka, conseguimos criar mais de um servidor e conectar a escuta em um grupo de 
+        consumidores específicos para cada servidor.
     - `Apache Zookeeper`: Gerenciador de Clusters;
+      - Abaixo temos uma formação de um cluster com 4 brokers, para administrar todos estes, utiliza-se o Zookeeper. 
+        - Uma exemplo de organização possível, é a nomeação automática de quem será master/slave.
+        - O Kafka utiliza o Zookeeper para sincronizar as configurações entre diferentes clusters.
       ```
                                     Cluster
         ┌─────────────────────────────────────────────────────────────┐
@@ -205,10 +210,42 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
         │                         Zookeper                            │
         └─────────────────────────────────────────────────────────────┘
       ```
+- **Apache Avro**:
+  - Quando tratamos de eventos, podemos ter qualquer tipo de mensagem (string, xml, json). 
+    Porém, em um contrato para as comunicaçãos apiREST, utilizamos JSON.
+    - O Apache Avro, é basicamente um sistema de serialização de dados que trabalha com JSON;
+    - Fornece uma rica estrutura de dados;
+    - Oferece um formado de dado binário, compacto e rápido;
+    - É um container para gravar dados persistentes.
+    - Quem define o Avro é um JSON com propriedades (schema), por exemplo:
+    ```json
+    {
+        "namespace": "com.exemple.avro",
+        "type": "record",
+        "name": "User",
+        "fields":[
+            {"name": "name", "type": "string"},
+            {"name": "favorite_number", "type": ["int", "null"]},
+            {"name": "favorite_color", "type": ["string", "null"]}
+        ]
+    }
+    ```
+    
+    ```json
+    {
+      "name": "Fulando Ciclano",
+      "favorite_number": 7,
+      "favorite_color": "purple"
+    }
+    ```
+- **Schema Registry**: 
+  - É uma camada distribuída de armazenamento para Schemas Avro, o qual usa o Kafka como mecanismo de armazenamento;
+  - Responsável por gravar todos schemas avro e fazer a verificação de 
+  compatibilidade, antes de postar uma mensagem pelo produtor e antes de consumir pelo consumidor;
 
-- **Schema Registry**;
-- **Apache Avro**;
-- **Serviços de Stream**;
-- **Live Coding**.
-
+- **Serviços de Stream**
+  - Microsfot Event Hub
+  - Amazon Kinesis
+  - Google Pub/Sub
+  - Kafka Local com Docker
 
