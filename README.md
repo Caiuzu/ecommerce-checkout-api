@@ -252,13 +252,28 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
 
 - **Stack**:
   - Back:
-     - Spring Boot
-     - Spring Web
-     - Spring Cloud Stream
-     - Spring Cloud Sleuth 
+     - Spring Boot: Para facilitar o processo de configuração e publicação de aplicações
+     - Spring Web: Para expor end-poins via rest
+     - Spring Cloud Stream: Para nosso kafka
+     - Spring Cloud Sleuth: Para gerar os logs da aplicação de forma mais organizada
    
   - Front:
+    - html
     - Bootstrap
 ---      
 ### Inicializando o projeto:
-Vamos inicializar nosso projeto através do [spring initializr](http://start.spring.io)
+Vamos inicializar nosso projeto através do [spring initializr](http://start.spring.io) e utilizaremos 
+os parâmetros abaixo:
+
+- **Project**: Gradle Project;
+- **Language**: Java;
+- **Spring Boot**: 2.4.5;
+- **Project Metadata**:
+    - **Group**: br.com.ecommerce
+    - **Articfact**: checkout
+    - **Name**: checkout
+    - **Description**: Checkout API
+    - **Packege name**: br.com.ecommerce.checkout
+    - **Packaging**: jar
+    - **Java**: 8
+- **Dependencies**: Spring Web, Sleuth, Cloud Stream, Stream for Apache Kafka Streams, Spring Data JPA, PostgreSQL Driver
