@@ -91,6 +91,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
      ```
 -----------------
 ### 2 - Stack e Definições:
+###### As ilustrações abaixo foram criadas com [asciiflow](asciiflow.com).
 - **Domínios:**
     ```
       ┌────────────────────────────────┐
@@ -262,8 +263,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     - Bootstrap
 ---      
 ### Inicializando o projeto:
-Vamos inicializar nosso projeto através do [spring initializr](http://start.spring.io) e utilizaremos 
-os parâmetros abaixo:
+Inicializaremos o nosso projeto através do [spring initializr](http://start.spring.io) utilizando os parâmetros abaixo:
 
 - **Project**: Gradle Project;
 - **Language**: Java;
