@@ -1,7 +1,8 @@
 plugins {
+    id 'com.commercehub.gradle.plugin.avro' version '0.99.99'
     id 'org.springframework.boot' version '2.4.5'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-    id "org.sonarqube" version "3.1.1"
+    id 'org.sonarqube' version '3.1.1'
     id 'java'
 }
 
@@ -11,6 +12,10 @@ sourceCompatibility = '1.8'
 
 repositories {
     mavenCentral()
+    maven {
+        url 'http://packages.confluent.io/maven/'
+        allowInsecureProtocol(true)
+    }
 }
 
 ext {
@@ -34,14 +39,23 @@ dependencies {
     implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
     implementation "io.springfox:springfox-swagger-ui:${swaggerVersion}"
 
+    // Lombok
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
     // PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
 
     // Kafka
     implementation 'org.apache.kafka:kafka-streams'
 
+    // Avro
+    implementation 'io.confluent:kafka-avro-serializer:5.5.0'
+
     // Tests
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 sonarqube {
@@ -60,4 +74,16 @@ dependencyManagement {
 
 test {
     useJUnitPlatform()
+}
+
+avro {
+    fieldVisibility = "PRIVATE"
+}
+
+generateAvroJava {
+    source 'src/main/resources/avro'
+}
+
+generateTestAvroJava {
+    source 'src/main/resources/avro'
 }

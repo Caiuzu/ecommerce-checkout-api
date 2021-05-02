@@ -284,7 +284,7 @@ Inicializaremos o nosso projeto através do [spring initializr](http://start.spr
     - **Package name**: br.com.ecommerce.checkout
     - **Packaging**: jar
     - **Java**: 8
-- **Dependencies**: Spring Web, Sleuth, Cloud Stream, Stream for Apache Kafka Streams, Spring Data JPA, PostgreSQL Driver
+- **Dependencies**: Spring Web, Sleuth, Cloud Stream, Stream for Apache Kafka Streams, Spring Data JPA, PostgreSQL Driver, Lombok
 
 ### Configurando SonarCloud no projeto:
 O **SonarCloud** é uma plataforma em nuvem para exibir o processo de inspeção continua do código de sua aplicação. 
