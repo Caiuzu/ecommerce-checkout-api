@@ -301,4 +301,45 @@ vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
   - **IMPORTANTE: reiniciar a IDE após a configuração da variável de ambiente** `SONAR_TOKEN`.
   - Para projetos com Java 8, será necessário alterar o Java para 11 ou superior (EXEMPLO abaixo):
     - `set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_281`
-    - `set JAVA_HOME=C:\Users\user\.jdks\adopt-openjdk-11.0.11`
+    - `set JAVA_HOME=C:\Users\Caiuzu\.jdks\adopt-openjdk-11.0.11`
+
+### Configurando Swagger2 no projeto:
+
+- Em [build.gradle](./build.gradle), adicionaremos as dependências abaixo:
+
+    ```
+    ext {
+        set('swaggerVersion', "2.9.2")
+    }
+    
+    dependencies {
+        // Swagger
+        implementation "io.springfox:springfox-swagger2:${springCloudVersion}"
+        implementation "io.springfox:springfox-swagger-ui:${springCloudVersion}"
+    }
+    ```
+  
+- Iremos adicionar a anotação `@EnableSwagger2` em nosso 
+  [main](./src/main/java/br/com/ecommerce/checkout/CheckoutApplication.java)
+- Em seguida, criaremos o diretório [config](./src/main/java/br/com/ecommerce/checkout/config), 
+  que será destinado a todas configurações de nosso projeto. Dentro iremos criar a classe de configuração 
+  [SwaggerConfiguration](./src/main/java/br/com/ecommerce/checkout/config/SwaggerConfiguration.java)
+    - Para funcionamento básico do swagger, devemos adicionar apenas as linhas abaixo. Para configurações adicionais, 
+      podemos utilizar os outros métodos contidos na classe (Autenticação, informações sobre o projeto, etc).
+
+    ```java
+      @EnableSwagger2
+      @Configuration
+      public class SwaggerConfiguration {
+      
+          @Bean
+          public Docket api() {
+              return new Docket(DocumentationType.SWAGGER_2)
+                      .select()
+                      .apis(RequestHandlerSelectors.basePackage("br.com.ecommerce.checkout"))
+                      .paths(PathSelectors.any())
+                      .build();
+          }
+      }
+    ```
+  - Desta forma, já estamos prontos para o swagger através da URL: http://localhost:8080/swagger-ui.html
