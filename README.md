@@ -20,7 +20,9 @@ microservices com Schema Registry. Para isso, programaremos em Java utilizando a
 
 
 [Primeiros passos para desenvolver um Projeto:]()
----
+
+----
+
 
 ### 1 - Instalando e configurando o ambiente:
 
@@ -66,8 +68,9 @@ microservices com Schema Registry. Para isso, programaremos em Java utilizando a
 - Extrair os arquivos, por exemplo, no diretório root `C:`
 - Adicionar nas variáveis de ambiente, em PATH com a localização do bin, por exemplo: `C:\Program Files\gradle-7.0\bin`
 - Em seguida vamos testar no terminal com o comando: `gradle -v`
-    
+
 ----
+
 - Instalação Linux — SDKMAN:
 
   - Install SDK Man:
@@ -286,6 +289,8 @@ Inicializaremos o nosso projeto através do [spring initializr](http://start.spr
     - **Java**: 8
 - **Dependencies**: Spring Web, Sleuth, Cloud Stream, Stream for Apache Kafka Streams, Spring Data JPA, PostgreSQL Driver, Lombok
 
+----
+
 ### Configurando SonarCloud no projeto:
 O **SonarCloud** é uma plataforma em nuvem para exibir o processo de inspeção continua do código de sua aplicação. 
 Para isso, o SonarCloud utiliza o SonarQube para realizar a “varredura” em seu código e analisar possíveis 
@@ -302,6 +307,8 @@ vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
   - Para projetos com Java 8, será necessário alterar o Java para 11 ou superior (EXEMPLO abaixo):
     - `set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_281`
     - `set JAVA_HOME=C:\Users\Caiuzu\.jdks\adopt-openjdk-11.0.11`
+
+----
 
 ### Configurando Swagger2 no projeto:
 
@@ -344,8 +351,12 @@ vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
     ```
   - Desta forma, já estamos prontos para o swagger através da URL: http://localhost:8080/swagger-ui.html
 
+----
+
 ### Alterando Banner de Inicialização:
 Basta criar um arquivo chamado [Banner.txt](./src/main/resources/banner.txt), no diretório [resources](./src/main/resources).
+
+----
 
 ### Configurando Actuator:
 **Spring Boot Actuator** é um sub-projeto do Spring Boot Framework. Inclui vários recursos adicionais que nos ajudam a
@@ -371,3 +382,61 @@ Expõe informações operacionais sobre o aplicativo em execução — integrida
   ```
 
 - Desta forma, o actuator estará pronto, basta acessar: http://localhost:8080/actuator/
+
+----
+
+### Configurando Plugin Avro Generator:
+Este Plugin tem a função de facilitar a conversão de um schema em uma classe java com apenas um comando. 
+Por exemplo, digamos que nosso schema esteja definido (schema exemplo abaixo), na teoria teríamos que traduzir, 
+manualmente cada definição de nosso arquivo para uma classe java, tornando o processo moroso.
+```json
+{
+  "type": "record",
+  "name": "CheckoutCreateEvent",
+  "namespace": "br.com.ecommerce.checkout.event",
+  "fields": [
+    {
+      "name": "checkoutCode",
+      "type": ["string", "null"]
+    }
+  ]
+}
+```
+
+- Para configurar, primeiro, adicionaremos as dependências abaixo em nosso arquivo [build.gradle](./build.gradle):
+
+```
+  plugins {
+    id 'com.commercehub.gradle.plugin.avro' version '0.99.99'
+  }
+  
+  repositories {
+    mavenCentral()
+    maven {
+        url 'http://packages.confluent.io/maven/'
+        allowInsecureProtocol(true)
+    }
+  }
+  
+  dependencies {
+    // Avro
+    implementation 'io.confluent:kafka-avro-serializer:5.5.0'
+  }
+  
+  avro {
+    fieldVisibility = "PRIVATE"
+  }
+  
+  generateAvroJava {
+    source 'src/main/resources/avro'
+  }
+  
+  generateTestAvroJava {
+    source 'src/main/resources/avro'
+  }
+```
+
+- Em seguida, criaremos uma pasta nomeada [avro](./src/main/resources/avro) dentro de [resources](./src/main/resources), 
+na qual serão colocados nossos schemas e lidos para conversão.
+
+- Finalmente, para efetivamente gerar a classe, basta utilizar o comando no terminal: `gradlew generateAvroJava`
