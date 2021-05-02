@@ -346,3 +346,28 @@ vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
 
 ### Alterando Banner de Inicialização:
 Basta criar um arquivo chamado [Banner.txt](./src/main/resources/banner.txt), no diretório [resources](./src/main/resources).
+
+### Configurando Actuator:
+**Spring Boot Actuator** é um sub-projeto do Spring Boot Framework. Inclui vários recursos adicionais que nos ajudam a
+monitorar e gerir o aplicativo Spring Boot. Ele usa endpoints HTTP ou beans JMX para nos permitir interagir com ele.
+Expõe informações operacionais sobre o aplicativo em execução — integridade, métricas, informações, etc.
+
+- Adicionaremos as dependências para o actuator no arquivo [build.gradle](./build.gradle):
+  ```
+    ext {
+      set('springBootVersion', "2.4.5")
+    }
+  
+    dependencies {
+      // Spring Boot
+      implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+    }
+  ```
+- Em [application.properties](./src/main/resources/application.properties), iremos colocar as propriedades abaixo:
+  ```
+    # Actuator
+    management.endpoint.health.enabled=true
+    management.endpoint.health.show-details=always
+  ```
+
+- Desta forma, o actuator estará pronto, basta acessar: http://localhost:8080/actuator/
