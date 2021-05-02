@@ -1,8 +1,8 @@
 plugins {
-	id 'org.springframework.boot' version '2.4.5'
-	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
-	id "org.sonarqube" version "3.1.1"
-	id 'java'
+    id 'org.springframework.boot' version '2.4.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id "org.sonarqube" version "3.1.1"
+    id 'java'
 }
 
 group = 'br.com.ecommerce'
@@ -10,38 +10,54 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 ext {
-	set('springCloudVersion', "2020.0.2")
+    set('springCloudVersion', "2020.0.2")
+    set('swaggerVersion', "2.9.2")
+    set('springBootVersion', "2.4.5")
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.apache.kafka:kafka-streams'
-	implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
-	implementation 'org.springframework.cloud:spring-cloud-stream'
-	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
-	runtimeOnly 'org.postgresql:postgresql'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
+
+    // Spring Cloud
+    implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+    implementation 'org.springframework.cloud:spring-cloud-stream'
+    implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
+
+    // Swagger
+    implementation "io.springfox:springfox-swagger2:${springCloudVersion}"
+    implementation "io.springfox:springfox-swagger-ui:${springCloudVersion}"
+
+    // PostgreSQL
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Kafka
+    implementation 'org.apache.kafka:kafka-streams'
+
+    // Tests
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 sonarqube {
-	properties {
-		property "sonar.projectKey", "Caiuzu_ecommerce-checkout-api"
-		property "sonar.organization", "caiuzu"
-		property "sonar.host.url", "https://sonarcloud.io"
-	}
+    properties {
+        property "sonar.projectKey", "Caiuzu_ecommerce-checkout-api"
+        property "sonar.organization", "caiuzu"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }
 
 dependencyManagement {
-	imports {
-		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
-	}
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 test {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
