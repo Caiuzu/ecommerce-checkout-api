@@ -1,6 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '2.4.5'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "org.sonarqube" version "3.1.1"
 	id 'java'
 }
 
@@ -25,6 +26,14 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
 	runtimeOnly 'org.postgresql:postgresql'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+sonarqube {
+	properties {
+		property "sonar.projectKey", "Caiuzu_ecommerce-checkout-api"
+		property "sonar.organization", "caiuzu"
+		property "sonar.host.url", "https://sonarcloud.io"
+	}
 }
 
 dependencyManagement {
