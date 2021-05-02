@@ -97,7 +97,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
      ```
 -----------------
 ### 2 - Stack e Definições:
-###### As ilustrações abaixo foram criadas com [asciiflow](asciiflow.com).
+###### As ilustrações abaixo foram criadas com [asciiflow](https://asciiflow.com/#/).
 - **Domínios:**
     ```
       ┌────────────────────────────────┐
@@ -343,3 +343,6 @@ vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
       }
     ```
   - Desta forma, já estamos prontos para o swagger através da URL: http://localhost:8080/swagger-ui.html
+
+### Alterando Banner de Inicialização:
+Basta criar um arquivo chamado [Banner.txt](./src/main/resources/banner.txt), no diretório [resources](./src/main/resources).
