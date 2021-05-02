@@ -8,11 +8,11 @@
 
 ###### Por: [@Caiuzu](https://github.com/Caiuzu)
 
-**JAVA:** _Solução E-commerce._
+**JAVA**: _Solução E-commerce._
 
-Neste projeto prático iremos desenvolver uma solução de e-commerce com a arquitetura de microsserviços e aplicar a 
+Neste projeto prático iremos desenvolver uma solução de e-commerce com a arquitetura de microservices e aplicar a 
 integração entre eles orientada a eventos com Apache Kafka e garantir a compatibilidade entre da comunicação dos 
-microsserviços com Schema Registry. Para isso, programaremos em Java utilizando a stack do Spring 
+microservices com Schema Registry. Para isso, programaremos em Java utilizando a stack do Spring 
 (Spring Boot, Spring Cloud Streams).
 
 
@@ -30,11 +30,11 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     - Primeiramente baixar e instalar https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
     - Após o término da instalação vamos configurar as variáveis do ambiente:
       - Clique com o botão direito em cima do ícone “Meu Computador”;
-      - Na barra de busca procure por “Variáveis de ambiente” e acesse "Editar Variaveis de Ambiente do Sistema";
-      - Clique no botão “Novo...” em “Variáveis de Ambiente”;
+      - Na barra de busca procure por “Variáveis de ambiente” e acesse "Editar Variáveis de Ambiente do Sistema";
+      - Clique no botão “Novo…” em “Variáveis de Ambiente”;
         - Nome da variável: `JAVA_HOME`
         - Valor da variável: coloque aqui o endereço de instalação (o caminho tem que ser o de instalação) 
-          C:\Arquivos de programas\Java\jdk1.8.0
+          `C:\Arquivos de programas\Java\jdk1.8.0`
         - Clique em OK
     - Clique novamente no botão `Nova` em Variáveis do sistema;
       - Nome da variável: CLASSPATH
@@ -46,7 +46,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     %JAVA_HOME%\lib\htmlconverter.jar;%JAVA_HOME%\jre\lib;%JAVA_HOME%\jre\lib\rt.jar;
   ```
     - Selecione a variável PATH em Variáveis do sistema e clique no botão Editar.
-      - Defina o valor dessa variável com o caminho da pasta Bin. No caso, pode-se utilizar a variável JAVA_HOME 
+      - Defina o valor dessa variável com o caminho da pasta Bin. No caso, pode-se utilizar a variável `JAVA_HOME` 
         previamente definida.
       ```
         ;%JAVA_HOME%\bin
@@ -56,19 +56,19 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
 #### Instalando Maven:
   - Baixe: https://maven.apache.org/download.cgi 
     - apache-maven-3.8.1-bin.zip
-  - Extrair os arquivos por exemplo no diretório raiz C:
-  - Addicionar nas variaveis de ambiente, em PATH com a localização do bin, por exemplo: C:\Program Files\apache-maven-3.8.1\bin
+  - Extrair os arquivos, por exemplo, no diretório, raiz: `C:`
+  - Adicionar nas variáveis de ambiente, em PATH com a localização do bin, por exemplo: `C:\Program Files\apache-maven-3.8.1\bin`
   - Em seguida vamos testar no terminal com o comando: `gradle -v`
     
 #### Instalando Gradle:
   - Baixe: https://gradle.org/releases/ 
     - [binary-only - gradle-7.0-bin.zip](https://gradle.org/next-steps/?version=7.0&format=bin)
-- Extrair os arquivos por exemplo no diretório raiz C:
-- Addicionar nas variaveis de ambiente, em PATH com a localização do bin, por exemplo: C:\Program Files\gradle-7.0\bin
+- Extrair os arquivos, por exemplo, no diretório root `C:`
+- Adicionar nas variáveis de ambiente, em PATH com a localização do bin, por exemplo: `C:\Program Files\gradle-7.0\bin`
 - Em seguida vamos testar no terminal com o comando: `gradle -v`
     
 ----
-- Instalação Linux - SDKman:
+- Instalação Linux — SDKMAN:
 
   - Install SDK Man:
      ```shell
@@ -96,9 +96,9 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
       sdk install gradle
      ```
 -----------------
-### 2 - Stack e Definições:
+### 2 — Stack e Definições:
 ###### As ilustrações abaixo foram criadas com [asciiflow](https://asciiflow.com/#/).
-- **Domínios:**
+- **Domínios**:
     ```
       ┌────────────────────────────────┐
       │          E-COMMERCE            │
@@ -108,8 +108,8 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
       └────────────────────────────────┘
     ```   
 
-    - `[checkout]`: Guarda as informações de checkout (cartão de crédito/débito, dados do usuário).
-    - `[payment]`: Possuí a responsabilidade de cobrar do cartão com o valor de uma compra XPTO.
+    - `[checkout]`: guarda as informações de checkout (cartão de crédito/débito, dados de usuários).
+    - `[payment]`: possuí a responsabilidade de cobrar do cartão com o valor de uma compra "XPTO".
     
 - **Arquitetura:**
     - `[Checkout]`:
@@ -118,8 +118,8 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     - `[Payment]`:
         - payment-api: Ao receber o evento do kafka faz o pagamento e devolve outro evento ao kafka.
     
-    - **Explicação:** Abaixo, checkout-api, irá gerar um evento para o kafka, onde payment-api estará escutando.
-        Ao finaliza o processamento de pagamento, payment-api irá retonar outro evento para o kafka onde checkout-api, irá escutar.
+    - **Explicação**: abaixo, checkout-api, irá gerar um evento para o kafka, onde payment-api estará escutando.
+        Ao finaliza o processamento de pagamento, payment-api irá retornar outro evento para o kafka onde checkout-api, irá escutar.
 
     ```
       ┌──────────────┐   ┌────────────┐   ┌─────┐   ┌───────────┐
@@ -131,7 +131,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
 - **Apache Kafka;**
   
     - Primeiramente, temos que entender oque é **Streaming Data:** É basicamente um fluxo contínuo de dados, como um rio
-      - Para quê e por queê utiliza: Possuí a capacidade de coletar, processar e armazenar um grande volume de dados em tempo real.
+      - Para quê e por quê utiliza: possuí a capacidade de coletar, processar e armazenar um grande volume de dados em tempo real.
       Alta disponibilidade dos dados e confiabilidade.
         
         ````
@@ -152,7 +152,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
         para os consumidores.
         ````
     - O **Apache Kafka**, é uma plataforma distribuída de mensagens e streaming. 
-      Diferente do Redis, rabbitMQ, que são sistemas de mensagerias.
+      Diferente de Redis, rabbitMQ, que são sistemas de mensagerias.
       - A ideia do streaming no kafka é o mesmo de um broadcast com TCP em redes, ele replica para outros IPs, 
         mas só quem está pronto para recebe-lo irá consumir o dado.
     
@@ -178,10 +178,10 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
         └───────────────────────────────────────────────────────────────┘
         ```
 - **Conceitos**:
-    - `Connectors`: conseguimos conectar o banco e disparar por exemplo um evento sempre que for feito um insert.
+    - `Connectors`: conseguimos conectar o banco e disparar, por exemplo, um evento sempre que for feito um insert.
     - `Mensagens`: A informação produzida pelo produtor
     - `Tópicos`: Meio por onde o produtor vai postar a mensagem e o consumidor consumirá
-      - Pode ser formado por _N_ partições. Quando um produtor publica uma mensagem, vai para uma dada partição
+      - Pode ser formado por _N_ partições. Quando um produtor, publica uma mensagem, vai para uma dada partição;
         - Cada partição possuí uma ordem de mensagens, de forma que conseguimos garantir a ordem das partições, mas não dos itens dentro destas.
             ```      
             Partição 1 -> [1] [2] [3] [4] [5] [6] [7]
@@ -199,7 +199,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
       - Quando formamos um Cluster Kafka, conseguimos criar mais de um servidor e conectar a escuta em um grupo de 
         consumidores específicos para cada servidor.
     - `Apache Zookeeper`: Gerenciador de Clusters;
-      - Abaixo temos uma formação de um cluster com 4 brokers, para administrar todos estes, utiliza-se o Zookeeper. 
+      - Abaixo temos uma formação de um cluster com 4 brokers, para administrar estes, utiliza-se o Zookeeper. 
         - Uma exemplo de organização possível, é a nomeação automática de quem será master/slave.
         - O Kafka utiliza o Zookeeper para sincronizar as configurações entre diferentes clusters.
       ```
@@ -218,8 +218,8 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
         └─────────────────────────────────────────────────────────────┘
       ```
 - **Apache Avro**:
-  - Quando tratamos de eventos, podemos ter qualquer tipo de mensagem (string, xml, json). 
-    Porém, em um contrato para as comunicaçãos apiREST, utilizamos JSON.
+  - Quando tratamos de eventos, podemos ter qualquer mensagem (string, xml, json). 
+    Todavia, em um contrato para as comunicações apiREST, utilizamos JSON.
     - O Apache Avro, é basicamente um sistema de serialização de dados que trabalha com JSON;
     - Fornece uma rica estrutura de dados;
     - Oferece um formado de dado binário, compacto e rápido;
@@ -240,7 +240,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     
     ```json
     {
-      "name": "Fulando Ciclano",
+      "name": "Fulano Ciclano",
       "favorite_number": 7,
       "favorite_color": "purple"
     }
@@ -251,7 +251,7 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
   compatibilidade, antes de postar uma mensagem pelo produtor e antes de consumir pelo consumidor;
 
 - **Serviços de Stream**
-  - Microsfot Event Hub
+  - Microsoft Event Hub
   - Amazon Kinesis
   - Google Pub/Sub
   - Kafka Local com Docker
@@ -259,17 +259,17 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
 
 - **Stack**:
   - Back:
-     - Spring Boot: Para facilitar o processo de configuração e publicação de aplicações
-     - Spring Web: Para expor end-poins via rest
-     - Spring Cloud Stream: Para nosso kafka
-     - Spring Cloud Sleuth: Para gerar os logs da aplicação de forma mais organizada
+     - Spring Boot: Para facilitar o processo de configuração e publicação de aplicações;
+     - Spring Web: Para expor end-points via rest;
+     - Spring Cloud Stream: Para nosso kafka;
+     - Spring Cloud Sleuth: Para gerar os logs da aplicação de forma organizada.
    
   - Front:
     - html
     - Bootstrap
 ---      
 
-### 3 - Inicializando o projeto:
+### 3 — Inicializando o projeto:
 ### Inicializando o projeto:
 Inicializaremos o nosso projeto através do [spring initializr](http://start.spring.io) utilizando os parâmetros abaixo:
 
@@ -278,23 +278,23 @@ Inicializaremos o nosso projeto através do [spring initializr](http://start.spr
 - **Spring Boot**: 2.4.5;
 - **Project Metadata**:
     - **Group**: br.com.ecommerce
-    - **Articfact**: checkout
+    - **Artifact**: checkout
     - **Name**: checkout
     - **Description**: Checkout API
-    - **Packege name**: br.com.ecommerce.checkout
+    - **Package name**: br.com.ecommerce.checkout
     - **Packaging**: jar
     - **Java**: 8
 - **Dependencies**: Spring Web, Sleuth, Cloud Stream, Stream for Apache Kafka Streams, Spring Data JPA, PostgreSQL Driver
 
 ### Configurando SonarCloud no projeto:
 O **SonarCloud** é uma plataforma em nuvem para exibir o processo de inspeção continua do código de sua aplicação. 
-Para isso, o SonarCloud utiliza o SonarQube para realizar a “varredura” em seu código fonte e analisar possíveis 
+Para isso, o SonarCloud utiliza o SonarQube para realizar a “varredura” em seu código e analisar possíveis 
 vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
 
 - Para inicializarmos a integração, acessaremos [https://sonarcloud.io/projects](https://sonarcloud.io/projects)
-- Na parde superior direita, no simbolo [+], click no item `analyze new project`
+- Na parde superior direita, no símbolo [+], click no item `analyze new project`
 - Escolheremos a organização onde se encontra o repositório a ser analisado 
-  (Import another organization, caso não haja nenhuma para selecionar direto)
+  (`Import another organization`, caso não haja nenhuma para selecionar direto);
 - Escolheremos a opção `Manually`
 - Para este projeto, em `What option best describer your build?`, selecionaremos `Gradle`
 - Agora basta seguir os passos que irão aparecer: 
@@ -322,7 +322,7 @@ vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
 - Iremos adicionar a anotação `@EnableSwagger2` em nosso 
   [main](./src/main/java/br/com/ecommerce/checkout/CheckoutApplication.java)
 - Em seguida, criaremos o diretório [config](./src/main/java/br/com/ecommerce/checkout/config), 
-  que será destinado a todas configurações de nosso projeto. Dentro iremos criar a classe de configuração 
+  que será destinado a todas as configurações do nosso projeto. Dentro iremos criar a classe de configuração; 
   [SwaggerConfiguration](./src/main/java/br/com/ecommerce/checkout/config/SwaggerConfiguration.java)
     - Para funcionamento básico do swagger, devemos adicionar apenas as linhas abaixo. Para configurações adicionais, 
       podemos utilizar os outros métodos contidos na classe (Autenticação, informações sobre o projeto, etc).
