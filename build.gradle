@@ -31,8 +31,8 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
 
     // Swagger
-    implementation "io.springfox:springfox-swagger2:${springCloudVersion}"
-    implementation "io.springfox:springfox-swagger-ui:${springCloudVersion}"
+    implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
+    implementation "io.springfox:springfox-swagger-ui:${swaggerVersion}"
 
     // PostgreSQL
     runtimeOnly 'org.postgresql:postgresql'
