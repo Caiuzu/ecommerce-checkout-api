@@ -1,4 +1,10 @@
 # PLANO DE ESTUDOS - JAVA
+![GitHub repo size](https://img.shields.io/github/repo-size/Caiuzu/ecommerce-checkout-api)
+![ViewCount](https://views.whatilearened.today/views/github/Caiuzu/ecommerce-checkout-api.svg)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Caiuzu_ecommerce-checkout-api&metric=bugs)](https://sonarcloud.io/dashboard?id=Caiuzu_ecommerce-checkout-api)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Caiuzu_ecommerce-checkout-api&metric=code_smells)](https://sonarcloud.io/dashboard?id=Caiuzu_ecommerce-checkout-api)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Caiuzu_ecommerce-checkout-api&metric=ncloc)](https://sonarcloud.io/dashboard?id=Caiuzu_ecommerce-checkout-api)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Caiuzu_ecommerce-checkout-api&metric=alert_status)](https://sonarcloud.io/dashboard?id=Caiuzu_ecommerce-checkout-api)
 
 ###### Por: [@Caiuzu](https://github.com/Caiuzu)
 
@@ -262,6 +268,8 @@ microsserviços com Schema Registry. Para isso, programaremos em Java utilizando
     - html
     - Bootstrap
 ---      
+
+### 3 - Inicializando o projeto:
 ### Inicializando o projeto:
 Inicializaremos o nosso projeto através do [spring initializr](http://start.spring.io) utilizando os parâmetros abaixo:
 
@@ -277,3 +285,20 @@ Inicializaremos o nosso projeto através do [spring initializr](http://start.spr
     - **Packaging**: jar
     - **Java**: 8
 - **Dependencies**: Spring Web, Sleuth, Cloud Stream, Stream for Apache Kafka Streams, Spring Data JPA, PostgreSQL Driver
+
+### Configurando SonarCloud no projeto:
+O **SonarCloud** é uma plataforma em nuvem para exibir o processo de inspeção continua do código de sua aplicação. 
+Para isso, o SonarCloud utiliza o SonarQube para realizar a “varredura” em seu código fonte e analisar possíveis 
+vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
+
+- Para inicializarmos a integração, acessaremos [https://sonarcloud.io/projects](https://sonarcloud.io/projects)
+- Na parde superior direita, no simbolo [+], click no item `analyze new project`
+- Escolheremos a organização onde se encontra o repositório a ser analisado 
+  (Import another organization, caso não haja nenhuma para selecionar direto)
+- Escolheremos a opção `Manually`
+- Para este projeto, em `What option best describer your build?`, selecionaremos `Gradle`
+- Agora basta seguir os passos que irão aparecer: 
+  - **IMPORTANTE: reiniciar a IDE após a configuração da variável de ambiente** `SONAR_TOKEN`.
+  - Para projetos com Java 8, será necessário alterar o Java para 11 ou superior (EXEMPLO abaixo):
+    - `set JAVA_HOME=C:\Program Files\Java\jdk1.8.0_281`
+    - `set JAVA_HOME=C:\Users\user\.jdks\adopt-openjdk-11.0.11`
