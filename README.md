@@ -98,6 +98,34 @@ microservices com Schema Registry. Para isso, programaremos em Java utilizando a
      ```shell
       sdk install gradle
      ```
+---
+#### Instalando Docker (Linux/WSL2):
+```shell
+sudo apt update
+
+sudo apt install apt-transport-https ca-certificates curl software-properties-common
+sudo apt install build-essential
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+sudo apt update
+
+sudo apt install docker-ce
+
+sudo service docker start
+sudo docker run hello-world
+
+#Nas próximas execuções, talvez você tenha de executar novamente
+sudo service docker start
+
+#Instale também o docker compose
+sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+docker-compose --version
+```
+
 -----------------
 ### 2 — Stack e Definições:
 ###### As ilustrações abaixo foram criadas com [asciiflow](https://asciiflow.com/#/).
@@ -354,7 +382,7 @@ vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
 ----
 
 ### Alterando Banner de Inicialização:
-Basta criar um arquivo chamado [Banner.txt](./src/main/resources/banner.txt), no diretório [resources](./src/main/resources).
+Basta criar um arquivo chamado [Banner.txt](./src/main/resources/banner.txt), no diretório [resources.](./src/main/resources)
 
 ----
 
