@@ -402,11 +402,13 @@ Expõe informações operacionais sobre o aplicativo em execução — integrida
       implementation "org.springframework.boot:spring-boot-starter-actuator:${springBootVersion}"
     }
   ```
-- Em [application.properties](./src/main/resources/application.properties), iremos colocar as propriedades abaixo:
-  ```
-    # Actuator
-    management.endpoint.health.enabled=true
-    management.endpoint.health.show-details=always
+- Em [application.yml](./src/main/resources/application.yml), iremos colocar as propriedades abaixo:
+  ```yaml
+   management:
+    endpoint:
+      health:
+        enabled: true
+        show-details: always
   ```
 
 - Desta forma, o actuator estará pronto, basta acessar: http://localhost:8080/actuator/
