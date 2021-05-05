@@ -99,32 +99,108 @@ microservices com Schema Registry. Para isso, programaremos em Java utilizando a
       sdk install gradle
      ```
 ---
-#### Instalando Docker (Linux/WSL2):
-```shell
-sudo apt update
+### Instalando Docker (Linux/WSL2):
+[Tutorial DigitalOcean](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04)
+#### 1 — Instalando Docker
 
-sudo apt install apt-transport-https ca-certificates curl software-properties-common
-sudo apt install build-essential
+- Primeiro, atualize sua lista existente de pacotes:
+  ```shell
+  sudo apt update
+   ```
 
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+- Em seguida, instale alguns pacotes de pré-requisitos que permitem ao apt usar pacotes sobre HTTPS:
+  ```shell
+  sudo apt install apt-transport-https ca-certificates curl software-properties-common
+   ```
 
-sudo apt update
+- Em seguida, adicione a chave GPG para o repositório oficial do Docker ao seu sistema:
+  ```shell
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+   ```
 
-sudo apt install docker-ce
+- Adicione o repositório Docker às fontes APT:
+  ```shell
+  sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+   ```
 
-sudo service docker start
-sudo docker run hello-world
+- Em seguida, atualize o banco de dados de pacotes com os pacotes Docker do repo recém-adicionado:
+  ```shell
+  sudo apt update
+   ```
 
-#Nas próximas execuções, talvez você tenha de executar novamente
-sudo service docker start
+- Certifique-se de que está prestes a instalar a partir do repositório Docker em vez do repositório Ubuntu padrão:
+  ```shell
+  apt-cache policy docker-ce
+  ```
 
-#Instale também o docker compose
-sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
+  _Observe que docker-ce não está instalado, mas o candidato para instalação é do repositório Docker para Ubuntu 20.04 (focal)._
+Finalmente, instale o Docker:
+    ```shell
+    sudo apt install docker-ce
+     ```
 
-docker-compose --version
-```
+- O Docker agora deve estar instalado, o daemon iniciado e o processo habilitado para iniciar na inicialização. Verifique se ele está funcionando:
+    ```shell
+    sudo systemctl status docker #para linux
+  
+    sudo /etc/init.d/docker status #para wsl2
+    ```
+
+#### 2 — Executando o comando Docker sem Sudo (opcional)
+
+- Se quiser evitar digitar sudo sempre que executar o comando docker, adicione seu nome de usuário ao grupo docker:
+  ```shell
+  sudo usermod -aG docker ${USER}
+  ```
+
+- Para aplicar a nova associação de grupo, saia do servidor e entre novamente ou digite o seguinte:
+  ```shell
+  #Você será solicitado a inserir sua senha de usuário para continuar.
+  su - ${USER}
+   ```
+- Confirme se o seu usuário foi adicionado ao grupo docker digitando:
+  ```shell
+  id -nG
+  ```
+  ```shell
+  #Output
+  sammy sudo docker
+  ```
+- listar docker:
+  ```shell
+  docker ps
+  ```
+  ```shell
+  run test docker
+  ```
+  ```shell
+  docker run hello-world
+  ```
+- Instale também o docker compose (utilizaremos 1.28.2)
+  ```shell
+  sudo curl -L "https://github.com/docker/compose/releases/download/1.28.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+  ```
+- dando permissão de execução para docker-compose:
+  ```shell
+  sudo chmod +x /usr/local/bin/docker-compose
+  ```
+- Verificando versão:
+  ```shell
+  docker-compose --version
+  ```
+
+### 3 — Instalando Portainer.io
+Iremos instalar o [portainer.io](https://www.portainer.io) para termos uma visualização dos containers:
+
+- Criando volume:
+  ```shell
+    docker volume create portainer_data
+  ```
+- Instalando portainer no volume:
+  ```shell
+    docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+  ```
+- Para acessar: http://localhost:9000/
 
 -----------------
 ### 2 — Stack e Definições:
