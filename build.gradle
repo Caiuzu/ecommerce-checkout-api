@@ -35,7 +35,7 @@ dependencies {
     // Spring Cloud
     implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
     implementation 'org.springframework.cloud:spring-cloud-stream'
-    implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
+    implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
 
     // Swagger
     implementation "io.springfox:springfox-swagger2:${swaggerVersion}"
