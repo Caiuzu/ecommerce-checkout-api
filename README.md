@@ -546,3 +546,66 @@ manualmente cada definição de nosso arquivo para uma classe java, tornando o p
 na qual serão colocados nossos schemas e lidos para conversão.
 
 - Finalmente, para efetivamente gerar a classe, basta utilizar o comando no terminal: `gradlew generateAvroJava`
+
+---
+
+### Configurando Docker e Docker-Compose:
+>[Docker in 100 Seconds](https://www.youtube.com/watch?v=Gjnup-PuquQ)
+
+> Antes de seguir os passos abaixo, garanta que seu docker está instalada conforme explicado no inicio deste documento.
+
+O **docker**, é basicamente um container. Ele usa os próprios recursos do kernel de nosso SO para "simular" uma nova máquina.
+Diferente de como faz uma VM (que gera um novo SO para realizar esta tarefa).
+
+O **docker-compose** faz a orquestração desses containers. Assim, possibilitando uma infra local rápida e eficiente.
+
+Iremos criar um diretório [docker](./docker) em nosso projeto e criaremos o arquivo de configuração
+[docker-compose.yml](./docker/docker-compose.yml).
+
+Comandos mais utilizados (antes de utiliza-los, devemos estar no diretório, no terminal):
+- iniciar: `docker-compose up --build -d`
+- listar containers: `docker ps`
+- derrubar os container e remover: `docker-compose down`
+- bonus - verificar se a porta está aberta: `telnet localhost {porta}`
+
+#### Serviços no container:
+Primeiro, temos que identificar o que queremos conteinerizar. Para este projeto serão
+os seguinte itens: _Banco de Dados(database-checkout e database-payment), Zookeerper, Kafka e Schema Registry_;
+
+Antes, precisamos entender cada linha de nosso docker-compose.yml
+
+````yaml
+version: '3.7'
+services:
+  database-checkout:
+    # image to fetch from docker hub
+    image: postgres:latest
+
+    # Environment variables for startup script
+    # container will use these variables
+    # to start the container with these define variables. 
+    environment:
+      POSTGRES_DB: checkout
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+
+    # Mapping of container port to host
+    ports:
+      - 5432:5432
+````
+`version ‘3.7’`: Isso indica que estamos usando a versão 3.7 do Docker Compose, e o Docker fornecerá os recursos apropriados.
+
+`services`: Esta seção define todos os diferentes contêineres que criaremos. Em nosso projeto, temos cinco serviços (dois bancos, kafka, etc).
+
+`database-checkout`: Este é o nome do nosso serviço de banco de dados. O Docker Compose criará contêineres com o nome que fornecemos.
+
+`image`: Se não tivermos um Dockerfile e quisermos executar um serviço usando uma imagem pré-construída, especificamos o local da imagem usando a cláusula image. O Compose fará um fork de um contêiner dessa imagem.
+
+`ports`: Isso é usado para mapear as portas do contêiner para a máquina host.
+
+`environment`: A cláusula nos permite configurar uma variável de ambiente no contêiner. É o mesmo que o argumento -e no Docker ao executar um contêiner.
+  - Os parâmetros `POSTGRES_PASSWORD`, `POSTGRES_USER`, `POSTGRES_DB`, indica ao docker, para inicializar nosso banco de dados com o usuário de conexão pré-configurado.
+
+[comment]:<>(#TODO: Listar outros parâmetros)
+
+---
