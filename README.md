@@ -1,4 +1,4 @@
-# PLANO DE ESTUDOS - JAVA
+# E-COMMERCE CHECKOUT API
 ![GitHub repo size](https://img.shields.io/github/repo-size/Caiuzu/ecommerce-checkout-api)
 ![ViewCount](https://views.whatilearened.today/views/github/Caiuzu/ecommerce-checkout-api.svg)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Caiuzu_ecommerce-checkout-api&metric=bugs)](https://sonarcloud.io/dashboard?id=Caiuzu_ecommerce-checkout-api)
@@ -8,7 +8,7 @@
 
 ###### Por: [@Caiuzu](https://github.com/Caiuzu)
 
-**JAVA**: _Solução E-commerce._
+**ESTUDO JAVA**: _Solução E-commerce._
 
 Neste projeto prático iremos desenvolver uma solução de e-commerce com a arquitetura de microservices e aplicar a 
 integração entre eles orientada a eventos com Apache Kafka e garantir a compatibilidade entre da comunicação dos 
@@ -572,7 +572,7 @@ Comandos mais utilizados (antes de utiliza-los, devemos estar no diretório, no 
 Primeiro, temos que identificar o que queremos conteinerizar. Para este projeto serão
 os seguinte itens: _Banco de Dados(database-checkout e database-payment), Zookeerper, Kafka e Schema Registry_;
 
-Antes, precisamos entender cada linha de nosso docker-compose.yml
+Antes, precisamos entender cada linha de nosso [docker-compose.yml](./docker/docker-compose.yml)
 
 ````yaml
 version: '3.7'
@@ -606,6 +606,75 @@ services:
 `environment`: A cláusula nos permite configurar uma variável de ambiente no contêiner. É o mesmo que o argumento -e no Docker ao executar um contêiner.
   - Os parâmetros `POSTGRES_PASSWORD`, `POSTGRES_USER`, `POSTGRES_DB`, indica ao docker, para inicializar nosso banco de dados com o usuário de conexão pré-configurado.
 
-[comment]:<>(#TODO: Listar outros parâmetros)
+---
+### Configurando Spring Data (Hibernate + JPA)
+> **Spring Data** é um projeto SpringSource de alto nível cujo objetivo é unificar e facilitar o acesso a diferentes 
+tipos de armazenamentos de persistência, tanto sistemas de banco de dados relacionais quanto armazenamentos de dados NoSQL
+
+> O **Hibernate** é um framework ORM, ou seja, a implementação física do que você usará para persistir, remover, atualizar ou buscar dados no SGBD. Por outro lado, o **JPA (Java Persistence API)** é uma camada que descreve uma interface comum para frameworks ORM.
+
+Utilizando as configurações que definimos para nosso banco (em nosso caso, os passados em nosso [docker-compose.yml](./docker/docker-compose.yml), para `database-checkout`), 
+iremos informar ao spring os dados para conexão da seguinte forma no arquivo [application.yml](./src/main/resources/application.yml):
+
+```yaml
+spring:
+  datasource:
+  url: jdbc:postgresql://localhost:5432/checkout # jdbc:driver://url_de_conexão:porta/banco_de_dados
+    username: admin                              # usuário do banco
+    password: admin                              # senha do banco
+    driver-class-name: org.postgresql.Driver     # driver
+    hikari:                                      #
+      connection-test-query: select 1            # consulta que será executada pouco antes de uma conexão do pool ser fornecida para validar se a conexão com o banco de dados está ativa
+```
+Iremos fazer configurações do hibernate jpa
+```yaml
+  jpa:
+    hibernate:
+      ddl-auto: create-drop #Cria e então destrói o schema no final da sessão.
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+        jdbc:
+          lob:
+            non_contextual_creation: true
+```
+<details>
+<summary>Mais detalhes sobre os campos de configuração JPA/Hibernate:</summary>
+
+- `jpa`:
+  - `hibernate`:
+      - `ddl-auto`: vai pegar a classe de entidade e irá gerar uma query de criação automaticamente de acordo com o parâmetro escolhido
+        - **none** : _Não gerar automaticamente. SEMPRE USAR ESTA OPÇÃO EM PROD e as outras apenas para teste/dev/local._
+        - **validate**: _validar o schema, não faz mudanças no banco de dados._
+        - **update**: _faz update o schema._
+        - **create**: _cria o schema, destruindo dados anteriores._
+        - **create-drop**: _Cria e então destrói o schema no final da sessão._
+  - `properties`:
+    - `hibernate`:
+      - `dialect`: especifica o dialeto que será usado
+      - `format_sql`: formatação do sql ao exibir no console [ true | false ]
+      - `show_sql`: exibir sql no console [ true | false ]
+      - `use_sql_comments`: mostrar comentários no console [ true | false ]
+      - `jdbc`:
+        - `lob`: um lob é um objeto grande. As colunas Lob podem ser usadas para armazenar textos muito longos ou arquivos binários. Existem dois tipos de lobs: CLOB e BLOB. O primeiro é um lob de caracteres e pode ser usado para armazenar textos.
+          - `non_contextual_creation`: criar lob no contexto [ true | false ]
+</details>
 
 ---
+### SOLID
+
+Para este projeto utilizaremos SOLID.
+
+O **S.O.L.I.D** é um acrônimo que representa cinco princípios da programação orientada a objetos e design de códigos
+teorizados pelo nosso querido Uncle Bob (Robert C. Martin) por volta do ano 2000. O autor Michael 
+Feathers foi responsável pela criação do acrônimo:
+- **S** _ingle Responsibility Principle (Princípio da Responsabilidade Única);_
+- **O** _pen/Closed Principle (Princípio do Aberto/Fechado);_
+- **L** _iskov Substitution Principle (Princípio da Substituição de Liskov);_
+- **I** _nterface Segregation Principle (Princípio da Segregação de Interfaces);_
+- **D** _ependency Inversion Principle (Princípio da Inversão de Dependências)._
+
+> Mais sobre o assunto acessando: [Princípios de SOLID](https://mari-azevedo.medium.com/princípios-s-o-l-i-d-o-que-são-e-porque-projetos-devem-utilizá-los-bf496b82b299).
