@@ -189,7 +189,7 @@ Finalmente, instale o Docker:
   docker-compose --version
   ```
 
-### 3 — Instalando Portainer.io
+#### 3 — Instalando Portainer.io
 Iremos instalar o [portainer.io](https://www.portainer.io) para termos uma visualização dos containers:
 
 - Criando volume:
@@ -202,9 +202,32 @@ Iremos instalar o [portainer.io](https://www.portainer.io) para termos uma visua
   ```
 - Para acessar: http://localhost:9000/
 
+#### 4 - Resolvendo possiveis problemas com WSL2
+
+Ao utilizarmos a docker, podemos nos deparar com a impossibilidade de conectarmos aos serviços de forma externa (pelo navegador)
+
+- Para verificar o acesso às portas:
+  ```shell
+  telnet localhost 9000
+  netcat -l 127.0.0.1 9000
+  ps aux | grep http
+  ```
+
+- Para solucionar basta:
+  - Desabilitar o Fast Boot do Windows;
+  - Executar o comando no powershell: `wsl --shutdown`
+  
 -----------------
 ### 2 — Stack e Definições:
-###### As ilustrações abaixo foram criadas com [asciiflow](https://asciiflow.com/#/).
+> ###### As ilustrações abaixo foram criadas com [asciiflow](https://asciiflow.com/#/).
+Breve entendimento: O modelo de negócios desse projeto, o usuário vai passar pela tela onde escolhe os produtos, 
+monta o carrinho. Na hora de fazer o checkout, ele simplesmente informa os dados e na hora que efetua a compra, o 
+pedido não será processado no mesmo momento em que foi feito, 
+aparecerá uma tela de "estamos processando seu pedido", assim como fazem a maioria dos e-commerces. 
+Reservam o saldo no cartão e faz o processamento depois. Capturaremos da reserva de saldo. 
+Não iremos processar nada em checkout-api. No momento em que seja feita a cobrança, manda uma notificação que a compra está aprovada. 
+iremos salvar nosso checkout e então faremos com que a payment-api processe efetivamente o pagamento com os dados enviados pelo checkout.
+
 - **Domínios**:
     ```
       ┌────────────────────────────────┐
@@ -396,7 +419,7 @@ Inicializaremos o nosso projeto através do [spring initializr](http://start.spr
 ----
 
 ### Configurando SonarCloud no projeto:
-O **SonarCloud** é uma plataforma em nuvem para exibir o processo de inspeção continua do código de sua aplicação. 
+> O **SonarCloud** é uma plataforma em nuvem para exibir o processo de inspeção continua do código de sua aplicação. 
 Para isso, o SonarCloud utiliza o SonarQube para realizar a “varredura” em seu código e analisar possíveis 
 vulnerabilidade, erros e regras específicas da linguagem (Code Smells).
 
@@ -463,7 +486,7 @@ Basta criar um arquivo chamado [Banner.txt](./src/main/resources/banner.txt), no
 ----
 
 ### Configurando Actuator:
-**Spring Boot Actuator** é um sub-projeto do Spring Boot Framework. Inclui vários recursos adicionais que nos ajudam a
+> **Spring Boot Actuator** é um sub-projeto do Spring Boot Framework. Inclui vários recursos adicionais que nos ajudam a
 monitorar e gerir o aplicativo Spring Boot. Ele usa endpoints HTTP ou beans JMX para nos permitir interagir com ele.
 Expõe informações operacionais sobre o aplicativo em execução — integridade, métricas, informações, etc.
 
@@ -492,7 +515,7 @@ Expõe informações operacionais sobre o aplicativo em execução — integrida
 ----
 
 ### Configurando Plugin Avro Generator:
-Este Plugin tem a função de facilitar a conversão de um schema em uma classe java com apenas um comando. 
+Esse Plugin tem a função de facilitar a conversão de um schema em uma classe java com apenas um comando. 
 Por exemplo, digamos que nosso schema esteja definido (schema exemplo abaixo), na teoria teríamos que traduzir, 
 manualmente cada definição de nosso arquivo para uma classe java, tornando o processo moroso.
 ```json
@@ -664,17 +687,3 @@ Iremos fazer configurações do hibernate jpa
 </details>
 
 ---
-### SOLID
-
-Para este projeto utilizaremos SOLID.
-
-O **S.O.L.I.D** é um acrônimo que representa cinco princípios da programação orientada a objetos e design de códigos
-teorizados pelo nosso querido Uncle Bob (Robert C. Martin) por volta do ano 2000. O autor Michael 
-Feathers foi responsável pela criação do acrônimo:
-- **S** _ingle Responsibility Principle (Princípio da Responsabilidade Única);_
-- **O** _pen/Closed Principle (Princípio do Aberto/Fechado);_
-- **L** _iskov Substitution Principle (Princípio da Substituição de Liskov);_
-- **I** _nterface Segregation Principle (Princípio da Segregação de Interfaces);_
-- **D** _ependency Inversion Principle (Princípio da Inversão de Dependências)._
-
-> Mais sobre o assunto acessando: [Princípios de SOLID](https://mari-azevedo.medium.com/princípios-s-o-l-i-d-o-que-são-e-porque-projetos-devem-utilizá-los-bf496b82b299).
