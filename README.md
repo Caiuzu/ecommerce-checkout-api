@@ -687,3 +687,77 @@ Iremos fazer configurações do hibernate jpa
 </details>
 
 ---
+
+# Mãos ao Código
+###### IT'S ADVENTURE TIME! 
+
+### 1 - Criando Contrato de API:
+Primeiramente precisamos montar nosso contrato de API. Quando fazemos APIs pensando primeiro no contrato 
+(contract first), trazemos um nível de maturidade muito maior de entendimento da solução como um todo, 
+antes mesmo de começar a programar. Além de iniciar o desenvolvimento com um artefato (contrato) que pode agilizar 
+geração de código fonte, mocks, documentação etc. 
+
+Esse item é de grande importância, tanto para o back quanto para que o 
+front possa trabalhar em paralelo, tendo como base fiel, os dados que seráo expostos pela nossa API.
+
+> Tópicos a serem estudados: [Testes de Contrato de API](https://imasters.com.br/apis-microsservicos/testes-de-contrato-de-api) e
+[Testes de Contrato de API com JOI](https://medium.com/cwi-software/testes-de-contrato-de-api-com-joi-1ce552fe2531)
+
+#### Contrato para checkout-api:
+```http request
+POST http://localhost:8085/v1/checkout/
+Content-Type: application/json
+
+{
+  "address": "string",
+  "cardCvv": "string",
+  "cardDate": "string",
+  "cardName": "string",
+  "cardNumber": "string",
+  "cep": "string",
+  "complement": "string",
+  "country": "string",
+  "email": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "paymentMethod": "string",
+  "products": [
+    "string"
+  ],
+  "saveAddress": true,
+  "saveInfo": true,
+  "state": "string"
+}
+```
+
+---
+### 2 - Estrutura de pacotes:
+``` 
+ecommerce-checkout-api/
+├── docker/
+├── src/
+│   ├── main/
+│   │   ├── java/
+│   │   │   ├── br.com.ecommerce.checkout/
+│   │   │   │   ├── config/
+│   │   │   │   ├── entity/
+│   │   │   │   ├── listener/
+│   │   │   │   ├── repository/
+│   │   │   │   ├── resource.checkout/
+│   │   │   │   ├── service/
+│   │   │   │   ├── streaming/
+│   │   │   │   └─ CheckoutApplication.java
+│   │   │   ├── checkout.event/
+│   │   │   └── payment.event/
+│   │   └── recources/
+│   │       ├── avro/
+│   │       ├── application.yml
+│   │       └── banner.txt
+│   └── test/
+├─ .gitignore
+├─ build.gradle
+├─ settings.gradle
+└─ README.md
+```
+---
+
