@@ -23,9 +23,7 @@ public class SwaggerConfiguration {
                 .apis(RequestHandlerSelectors.basePackage("br.com.ecommerce.checkout"))
                 .paths(PathSelectors.any())
                 .build()
-                .apiInfo(metaData())
-                .securitySchemes(Collections.singletonList(basicAuthScheme()))
-                .securityContexts(Collections.singletonList(securityContext()));
+                .apiInfo(metaData());
     }
 
     private ApiInfo metaData() {
@@ -39,21 +37,6 @@ public class SwaggerConfiguration {
                 "License Version 1.0",
                 null,
                 Collections.emptyList());
-    }
-
-    private SecurityContext securityContext() {
-        return SecurityContext.builder()
-                .securityReferences(Collections.singletonList(basicAuthReference()))
-                .forPaths(PathSelectors.any())
-                .build();
-    }
-
-    private SecurityScheme basicAuthScheme() {
-        return new BasicAuth("basicAuth");
-    }
-
-    private SecurityReference basicAuthReference() {
-        return new SecurityReference("basicAuth", new AuthorizationScope[0]);
     }
 
 }
