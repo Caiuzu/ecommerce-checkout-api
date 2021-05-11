@@ -698,7 +698,7 @@ antes mesmo de começar a programar. Além de iniciar o desenvolvimento com um a
 geração de código fonte, mocks, documentação etc. 
 
 Esse item é de grande importância, tanto para o back quanto para que o 
-front possa trabalhar em paralelo, tendo como base fiel, os dados que seráo expostos pela nossa API.
+front possa trabalhar em paralelo, tendo como base fiel, os dados que serão expostos pela nossa API.
 
 > Tópicos a serem estudados: [Testes de Contrato de API](https://imasters.com.br/apis-microsservicos/testes-de-contrato-de-api) e
 [Testes de Contrato de API com JOI](https://medium.com/cwi-software/testes-de-contrato-de-api-com-joi-1ce552fe2531)
@@ -733,31 +733,259 @@ Content-Type: application/json
 ---
 ### 2 - Estrutura de pacotes:
 ``` 
-ecommerce-checkout-api/
-├── docker/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   ├── br.com.ecommerce.checkout/
-│   │   │   │   ├── config/
-│   │   │   │   ├── entity/
-│   │   │   │   ├── listener/
-│   │   │   │   ├── repository/
-│   │   │   │   ├── resource.checkout/
-│   │   │   │   ├── service/
-│   │   │   │   ├── streaming/
-│   │   │   │   └─ CheckoutApplication.java
-│   │   │   ├── checkout.event/
-│   │   │   └── payment.event/
-│   │   └── recources/
-│   │       ├── avro/
-│   │       ├── application.yml
-│   │       └── banner.txt
-│   └── test/
-├─ .gitignore
-├─ build.gradle
-├─ settings.gradle
-└─ README.md
+  ecommerce-checkout-api/
+  ├── docker/
+  ├── src/
+  │   ├── main/
+  │   │   ├── java/
+  │   │   │   ├── br.com.ecommerce.checkout/
+  │   │   │   │   ├── config/
+  │   │   │   │   ├── entity/
+  │   │   │   │   ├── listener/
+  │   │   │   │   ├── repository/
+  │   │   │   │   ├── resource.checkout/
+  │   │   │   │   ├── service/
+  │   │   │   │   ├── streaming/
+  │   │   │   │   └─ CheckoutApplication.java
+  │   │   │   ├── checkout.event/
+  │   │   │   └── payment.event/
+  │   │   └── recources/
+  │   │       ├── avro/
+  │   │       ├── application.yml
+  │   │       └── banner.txt
+  │   └── test/
+  ├─ .gitignore
+  ├─ build.gradle
+  ├─ settings.gradle
+  └─ README.md
 ```
 ---
+### 3 - Iniciando nosso código:
 
+
+<details>
+<summary> Para este projeto aplicaremos alguns conceitos de SOLID:</summary>
+
+O **S.O.L.I.D** é um acrônimo que representa cinco princípios da programação orientada a objetos e design de códigos
+teorizados pelo nosso querido Uncle Bob (Robert C. Martin) por volta do ano 2000. O autor Michael
+Feathers foi responsável pela criação do acrônimo:
+- **S** _ingle Responsibility Principle (Princípio da Responsabilidade Única);_
+- **O** _pen/Closed Principle (Princípio do Aberto/Fechado);_
+- **L** _iskov Substitution Principle (Princípio da Substituição de Liskov);_
+- **I** _nterface Segregation Principle (Princípio da Segregação de Interfaces);_
+- **D** _ependency Inversion Principle (Princípio da Inversão de Dependências)._
+
+> Mais sobre o assunto acessando: [Princípios de SOLID](https://mari-azevedo.medium.com/princípios-s-o-l-i-d-o-que-são-e-porque-projetos-devem-utilizá-los-bf496b82b299).
+---
+</details>
+
+<details>
+<summary> Também utilizaremos lombok:</summary>
+
+O **Lombok** é um Framework criado sob licença MIT, podendo ser usado livremente em qualquer projeto Java. 
+Seu principal objetivo é diminuir a verbosidade das classes de mapeamento JPA, DTOs e Beans por exemplo.
+
+Sua vantagem é evitar a repetição de código "clichê", como a criação de gets e sets para todos os atributos, 
+métodos equals e hashCode, toString, Construtores entre outros. Dessa forma, o código fica mais limpo e claro. 
+---
+</details>
+
+
+#### Iremos começar criando nossas classes:
+- [CheckoutResource](./src/main/java/br/com/ecommerce/checkout/resource/checkout/CheckoutResource.java): Que será nossa 
+  controller, responsável pelo processamento das requisições e por gerar respostas;
+  - Iremos anotar nossa classe com `@Controller` para indicar ao spring que nossa classe é uma controller;
+  - `@RequestMapping("/v1/checkout")` para mapear qual a path padrão para nosso resource;
+  - Então criaremos nosso método `create ()`
+    - Deverá ser anotado com `@PostMapping("/")`, para atender as requisições POST;
+    - Receberá como parâmetro um objeto `CheckoutRequest` e responderá um `ResponseEntity<CheckoutResponse>`;
+      ```java
+        @PostMapping("/")
+          public ResponseEntity<CheckoutResponse> create(@RequestBody CheckoutRequest checkoutRequest) {}
+      ```
+
+- [CheckoutRequest](./src/main/java/br/com/ecommerce/checkout/resource/checkout/CheckoutRequest.java): Que será como um 
+  VO, usado basicamente para receber os dados serializados passados na request de forma que possa ser facilmente repassado 
+  a nossa Entidade.
+  - Iremos anotar nossa classe com `lombok.Data` para a criação automática de getters e setters;
+  - Para gerar nossos contrutores em tempo de compilaçao, para TODOS os argumentos, anotaremos com 
+    `lombok.AllArgsConstructor`, e para caso não tenha nenhum `lombok.NoArgsConstructor`;
+  - Como é uma resquest, ela precisa ser serializada, então, implementaremos a interface `java.io.Serializable`;
+  - Então, iremos declarar os dados que mapeamos no contrato, os quais receberemos em nossa em requisição;
+ 
+
+- [CheckoutRespose](./src/main/java/br/com/ecommerce/checkout/resource/checkout/CheckoutResponse.java): Que será como um
+  DTO, que representa nosso contrato de saída, usado basicamente para enviar os dado de retorno da nossa API para o cliente;
+
+#### Em seguida, baseado nos princípios de SOLID, visando o desacoplamento de responsabilidades:
+
+- Criaremos nossa entidade [CheckoutEntity](./src/main/java/br/com/ecommerce/checkout/entity/CheckoutEntity.java):
+  - Ela **representará os dados da tabela** de nosso banco de dados de checkout;
+  - Anotaremos com `@Entity` do pacote `javax.persistence.*`;
+  - <details>
+      <summary> E anotaremos cada representação de coluna com sua anotação representativa:</summary>
+
+    Breve entendimento sobre notações JPA: #TO-DO
+
+    `@Id`: <br>
+    `@Column`:<br>
+    `@OneToOne`:<br>
+    `@OneToMany`:<br>
+    </details>
+  - Será usada em nossa camada de repositório para ser acessada.
+  - Anotaremos a classe com `lombok.Builder`, 
+    - **Breve Explicação**: Geralmente instanciamos classes da forma demonstrada abaixo, porém ao mudar parâmetros no construtor, 
+      somos obrigados a alterar em todos que a utilizam: **TODO: Falar sobre o pattern Builder**
+      ```java
+        final CheckoutEntity checkoutEntity = new CheckoutEntity();
+      ``` 
+    - Para isso o lombok facilitará em nosso desenvolvimento, de forma que não precisaremos gerar um builder na mão, 
+      precisaremos apenas utilizar o `@Builder` em nossa **Entidade**, para que em nosso **service** possamos utilizar da seguinte forma:
+      ```java
+        final CheckoutEntity checkoutEntity = CheckoutEntity.builder().code().build(); // A funcionalidade foi exatrída para o método getCheckoutEntity()
+      ```
+
+
+- Sendo assim, criaremos nosso repositório [CheckoutRepository](./src/main/java/br/com/ecommerce/checkout/repository/CheckoutRepository.java):
+  - Está classe fará acesso aos dados de nossa entidade;
+  - Deveremos anotar nossa classe com `org.springframework.stereotype.Repository`
+  - Herdaremos a classe `JpaRepositoroty<CheckoutEntty, Long>`, passando nossa entidade e a tipo do ID
+
+
+- Iremos criar nossa classe de serviços [CheckoutService](./src/main/java/br/com/ecommerce/checkout/service/CheckoutService.java):
+  - Deveremos anotar nossa classe com `org.springframework.stereotype.Service`, para que seja criado uma instância do nosso serviço;
+
+  - Iremos realizar a injeção de depedência de nosso `repositório` em nosso `service`, para que possamos utilizar os métodos JPA:
+    - Comumente, para realizar a injeção de dependências é criado um construtor, como demonstrado abaixo:
+      ```java
+        private final CheckoutRepository checkoutRepository;
+      
+        public CheckoutService(final CheckoutRepository checkoutRepository) {
+            this.checkoutRepository = checkoutRepository;
+        }
+      ```
+      - Porém, utilizando a anotação `lombok.RequiredArgsConstructor`, o construtor será criado em tempo de compilação para todos atributos que estejam como `final`, fazendo com que seja somente necessário a linha abaixo:
+        ```java
+            private final CheckoutRepository checkoutRepository;
+        ```
+        > **AVISO!** NUNCA UTILIZE `@AUTOWIRED` NO ATRIBUTO DA CLASSE PARA FAZER INJEÇÃO, É CRIME. _SUJEITO A PAULADA!!!_
+    - Sabendo disso, nosso Service também deverá ser injetado em nossa classe controller [CheckoutResource](./src/main/java/br/com/ecommerce/checkout/resource/checkout/CheckoutResource.java))
+  - Teremos em nosso service dois métodos. 
+    - create: responsável por criar;
+      - Utilizaremos a api `Optional<>`, ela permite trabalhar com objetos nulos.
+      - Para utilizarmos o `save()` passaremos a instância de nossa entidade após manipularmos utilizando as ferramentas proporcionadas pelo `@Build` em nosso `repository` 
+        ```java
+            final CheckoutEntity entity = checkoutRepository.save(checkoutEntity);
+        ``` 
+
+
+#### Com nosso sistema salvando os dados no banco, agora, precisaremos enviar um evento no kafka para dizer que o checkout foi criado:
+- Definiremos em nosso avro de [CheckoutCreated.avsc](./src/main/resources/avro/CheckoutCreated.avsc) os dados `checkoutCode` e `status`;
+- Poderiamos fazer toda conexão com o kafka manualmente, para publicar, criar um listener, etc. Porém iremos utilizar o [`spring.cloud.streams`]()
+  - No spring cloud chamamos
+    - o produtor de source, 
+    - o consumidor de sink, 
+    - o broker de input/output,
+    - quem recebe um mensagem processa e devolve ao kafka, é chamado de processor
+  - Utilizando Spring Cloud, criar um produtor se torna simples
+      - Se fossemos utilizar o próprio apache kafka, teriamos que criar todas as configurações, injeções de classes, etc
+      - Com o springCloud, criaremos apenas uma interface, e teremos abstraído todos itens citado acima. Para esse projeto teremos a interface [CheckoutCreatedSource](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java)
+  - Primeiramente iremos definir um _tópico virtual_ `"checkout-created-output"` e faremos alguns binds. 
+    - Tudo que produzirmos e jogarmos nesse `tópico virtual`, para qual `tópico real` ele será enviado?
+      - Isso será definido em nossas configurações em [application.yml](./src/main/resources/application.yml)
+        ```yaml
+          cloud:
+            stream:
+              kafka:
+                binder: # Configurações para definir quem vai ser a ferramenta para messageria ou streaming (Kafka ou Rebbit)
+                  autoCreateTopics: true # No momento de subir a aplicação ele cria um tópico automático, semelhante ao ddl do JPA
+                  brokers: localhost:9092 # configura quem é o broker, poderia ter uma lista (porta default do kafka 9092)
+                  configuration: # configuramos o serializer e o deserializer. A msg do kafka é representada por uma chave um valor
+                    value:
+                      deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer # Utilizaremos o Serializer e o Deserializer da confluent. Estes, já usam o schema registry, já possuí implementado a logica de pegar no schema registry e realizar validação do schema avro para manter a compatibilidade
+                      serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+                    key:
+                      deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+                      serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+              bindings: # define que para o tópico virtual x terá seus dados enviados para o tópico real
+                checkout-created-output: # Tópico Virtual
+                  destination: streaming.ecommerce.checkout.created # Tópico Real. Padrão de nomenclatura -> tipo_de_informação.nome_de_domino.entidade.ação_realizada
+                  contentType: application/*+avro # ContentType HTTP
+                  producer:
+                    use-native-encoding: true # usar o encoding nativo, o serializer e deserializer da confluent que definimos acima
+                payment-paid-input:
+                  destination: streaming.ecommerce.payment.paid
+                  contentType: application/*+avro
+                  group: ${spring.application.name}
+                  consumer:
+                    use-native-decoding: true
+        ```
+
+    - <details>
+      <summary> Explicação de organização de nomenclaturas para nomes de tópicos:</summary>
+  
+      A medida que a empresa cresce, crescem também o numero de aplicações que estarão consumindo tópicos. 
+      Para isto, é importante ter uma organização dos tópicos bem definida
+    
+      Configuraremos nosso padrão de nomenclatura em destination:
+      ````yaml
+        bindings: 
+          checkout-created-output: 
+            destination: streaming.ecommerce.checkout.created
+      ````
+      - `streaming.ecommerce.checkout.created` -> tipo_de_informação.nome_de_domino.entidade.ação_realizada
+        - **tipo_de_informação**: se é um `streaming`, ou `etl`
+        - **nome_de_domino**: qual domínio da aplicação
+        - **entidade**: a entidade que estamos publicando
+        - **ação_realizada**: create, update, etc
+    
+    </details>
+
+  - Precisaremos criar uma classe de configuração de streaming [StreamingConfig](./src/main/java/br/com/ecommerce/checkout/config/StreamingConfig.java)
+    - Anotaremos com: 
+      - `@Configuration` do pacote `org.springframework.context.annotation.Configuration`;
+      - `@EnableBinding` do pacote `org.springframework.cloud.stream.annotation.EnableBinding`, e passaremos no value, nossas interfaces que serão criadas:
+          - Interface de Producer [CheckoutCreatedSource](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java);
+          - Interface de Consumer [PaymentPaidSink](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java)
+
+  - Para publicar no kafka, injetaremos o producer [CheckoutCreatedSource](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java) 
+    em nosso service [CheckoutService](./src/main/java/br/com/ecommerce/checkout/service/CheckoutService.java) e 
+    ```java
+      private final CheckoutCreatedSource checkoutCreatedSource;
+    ```
+  - Chamaremos nosso source, utilizaremos o método `output()` para conseguirmos pegar o canal do `tópico virtual`, 
+    logo em seguida iremos enviar uma mensagem dentro do nosso `send()`:
+   ```java
+        checkoutCreatedSource.output().send(MessageBuilder.withPayload(checkoutCreatedEvent).build());
+   ```
+--- 
+### Para consultarmos avros, utilizaremos o Schema Registry API:
+
+> - [Schema Registry API Reference](https://docs.confluent.io/platform/current/schema-registry/develop/using.html) 
+> - [Schema Registry API Usage Examples](https://docs.confluent.io/platform/current/schema-registry/develop/api.html)
+- **Subjects:** localhost:8081/subjects
+  ```json
+    [
+      "streaming.ecommerce.checkout.created-value"
+    ]
+  ```
+
+- Subjects: localhost:8081/subjects/streaming.ecommerce.checkout.created-value/versions/latest
+  ```json
+    [
+      "streaming.ecommerce.checkout.created-value"
+    ]
+  ```
+  
+---  
+
+Dessa forma, finalizamos nossa API de Checkout e podemos dar início a nossa Api de Payment, que atuara como nosso 
+consumer.
+
+># [PROJETO PAYMENT API]()
+
+---
+
+## Melhorias/Pendências:
+- [ ] Utilizar `javax.validation.constraints` (`@NotEmpty`, etc), para validar os campo em 
+  [CheckoutRequest](./src/main/java/br/com/ecommerce/checkout/resource/checkout/CheckoutRequest.java)
