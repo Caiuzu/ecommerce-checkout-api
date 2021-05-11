@@ -989,3 +989,7 @@ consumer.
 ## Melhorias/Pendências:
 - [ ] Utilizar `javax.validation.constraints` (`@NotEmpty`, etc), para validar os campo em 
   [CheckoutRequest](./src/main/java/br/com/ecommerce/checkout/resource/checkout/CheckoutRequest.java)
+- [ ] TDD
+- [ ] BDD (Cucumber)
+- [ ] Ajustar bibliotecas depreciadas
+- [ ] Jenkins
