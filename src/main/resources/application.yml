@@ -24,13 +24,6 @@ spring:
         binder:
           autoCreateTopics: true
           brokers: localhost:9092
-          configuration:
-            value:
-              deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-              serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-            key:
-              deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-              serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
       bindings:
         checkout-created-output:
           destination: streaming.ecommerce.checkout.created
@@ -48,6 +41,12 @@ spring:
       schema:
         registry:
           url: http://localhost:8081
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
   application:
     name: checkout-api
 server:

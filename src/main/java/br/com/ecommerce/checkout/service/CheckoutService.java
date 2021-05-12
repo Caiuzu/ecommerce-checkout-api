@@ -6,10 +6,10 @@ import br.com.ecommerce.checkout.entity.ShippingEntity;
 import br.com.ecommerce.checkout.entity.enumeration.Status;
 import br.com.ecommerce.checkout.repository.CheckoutRepository;
 import br.com.ecommerce.checkout.resource.checkout.CheckoutRequest;
-import br.com.ecommerce.checkout.streaming.CheckoutCreatedSource;
 import checkout.event.CheckoutCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class CheckoutService {
 
     private final CheckoutRepository checkoutRepository;
-    private final CheckoutCreatedSource checkoutCreatedSource;
+    private final KafkaTemplate<String, CheckoutCreatedEvent> kafkaTemplate;
 
     public Optional<CheckoutEntity> create(CheckoutRequest checkoutRequest) {
         final CheckoutEntity checkoutEntity = getCheckoutEntity(checkoutRequest);
@@ -33,7 +33,7 @@ public class CheckoutService {
         final CheckoutEntity entity = checkoutRepository.save(checkoutEntity);
         final CheckoutCreatedEvent checkoutCreatedEvent = getCheckoutCreatedEvent(entity);
 
-        checkoutCreatedSource.output().send(MessageBuilder.withPayload(checkoutCreatedEvent).build());
+        kafkaTemplate.send(MessageBuilder.withPayload(checkoutCreatedEvent).build());
 
         return Optional.of(entity);
     }
