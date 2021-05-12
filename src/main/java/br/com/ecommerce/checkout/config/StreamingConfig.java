@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
+import org.springframework.kafka.listener.ContainerProperties;
 import payment.event.PaymentCreatedEvent;
 
 import java.util.Map;
@@ -37,8 +38,7 @@ public class StreamingConfig {
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 
-    @Bean
-    public ConsumerFactory<String, PaymentCreatedEvent> consumerFactory(final KafkaProperties kafkaProperties) {
+    private ConsumerFactory<String, PaymentCreatedEvent> consumerFactory(final KafkaProperties kafkaProperties) {
         Map<String, Object> props = kafkaProperties.buildConsumerProperties();
         KafkaAvroDeserializer kafkaAvroDeserializer = new KafkaAvroDeserializer();
         kafkaAvroDeserializer.configure(props, false);
@@ -50,7 +50,9 @@ public class StreamingConfig {
     kafkaListenerContainerFactory(final KafkaProperties kafkaProperties) {
         ConcurrentKafkaListenerContainerFactory<String, PaymentCreatedEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConcurrency(1);
         factory.setConsumerFactory(consumerFactory(kafkaProperties));
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
         return factory;
     }
 
