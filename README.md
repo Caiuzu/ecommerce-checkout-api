@@ -835,20 +835,39 @@ métodos equals e hashCode, toString, Construtores entre outros. Dessa forma, o 
   - Será usada em nossa camada de repositório para ser acessada.
   - Anotaremos a classe com `lombok.Builder`, 
     - **Breve Explicação**: Geralmente instanciamos classes da forma demonstrada abaixo, porém ao mudar parâmetros no construtor, 
-      somos obrigados a alterar em todos que a utilizam: **TODO: Falar sobre o pattern Builder**
+      somos obrigados a alterar em todos que a utilizam:
       ```java
         final CheckoutEntity checkoutEntity = new CheckoutEntity();
       ``` 
-    - Para isso o lombok facilitará em nosso desenvolvimento, de forma que não precisaremos gerar um builder na mão, 
+    - Para isso o lombok facilitará em nosso desenvolvimento, de forma que não precisaremos gerar um builder[*] na mão, 
       precisaremos apenas utilizar o `@Builder` em nossa **Entidade**, para que em nosso **service** possamos utilizar da seguinte forma:
       ```java
         final CheckoutEntity checkoutEntity = CheckoutEntity.builder().code().build(); // A funcionalidade foi exatrída para o método getCheckoutEntity()
       ```
+<details>
+  <summary> [*] Um pouco sobre o Pattern Builder:</summary>
 
+  **Pattern Builder**, é um padrão de design projetado para fornecer uma solução flexível para vários problemas de
+  criação de objetos na programação orientada a objetos. A intenção do padrão de projeto Builder é separar a construção
+  de um objeto complexo de sua representação.
+  
+  ### Estrutura:
+  O padrão Builder, da forma como foi descrito no livro [Design Patterns: Elements of Reusable Object-Oriented Software](https://en.wikipedia.org/wiki/Design_Patterns),
+  contém os seguintes elementos:
+  
+  #### Vantagens:
+  - Permite variar a representação interna de um objeto;
+  - Encapsula o código entre construção e representação;
+  - Provê controle durante o processo de construção.
+  
+  #### Desvantagens:
+  - Requer criar um concrete builder específico para cada instância diferente do produto.
+---
+</details>
 
 - Sendo assim, criaremos nosso repositório [CheckoutRepository](./src/main/java/br/com/ecommerce/checkout/repository/CheckoutRepository.java):
   - Está classe fará acesso aos dados de nossa entidade;
-  - Deveremos anotar nossa classe com `org.springframework.stereotype.Repository`
+  - Deveremos anotar nossa classe com `org.springframework.stereotype.Repository`, para informar ao spring que nossa classe será um repositório
   - Herdaremos a classe `JpaRepositoroty<CheckoutEntty, Long>`, passando nossa entidade e a tipo do ID
 
 
@@ -880,17 +899,10 @@ métodos equals e hashCode, toString, Construtores entre outros. Dessa forma, o 
 
 
 #### Com nosso sistema salvando os dados no banco, agora, precisaremos enviar um evento no kafka para dizer que o checkout foi criado:
+> Source: https://www.baeldung.com/spring-kafka
+
+#### Configurações Iniciais:
 - Definiremos em nosso avro de [CheckoutCreated.avsc](./src/main/resources/avro/CheckoutCreated.avsc) os dados `checkoutCode` e `status`;
-- Poderiamos fazer toda conexão com o kafka manualmente, para publicar, criar um listener, etc. Porém iremos utilizar o [`spring.cloud.streams`]()
-  - No spring cloud chamamos
-    - o produtor de source, 
-    - o consumidor de sink, 
-    - o broker de input/output,
-    - quem recebe um mensagem processa e devolve ao kafka, é chamado de processor
-  - Utilizando Spring Cloud, criar um produtor se torna simples
-      - Se fossemos utilizar o próprio apache kafka, teriamos que criar todas as configurações, injeções de classes, etc
-      - Com o springCloud, criaremos apenas uma interface, e teremos abstraído todos itens citado acima. Para esse projeto teremos a interface [CheckoutCreatedSource](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java)
-  - Primeiramente iremos definir um _tópico virtual_ `"checkout-created-output"` e faremos alguns binds. 
     - Tudo que produzirmos e jogarmos nesse `tópico virtual`, para qual `tópico real` ele será enviado?
       - Isso será definido em nossas configurações em [application.yml](./src/main/resources/application.yml)
         ```yaml
@@ -900,14 +912,7 @@ métodos equals e hashCode, toString, Construtores entre outros. Dessa forma, o 
                 binder: # Configurações para definir quem vai ser a ferramenta para messageria ou streaming (Kafka ou Rebbit)
                   autoCreateTopics: true # No momento de subir a aplicação ele cria um tópico automático, semelhante ao ddl do JPA
                   brokers: localhost:9092 # configura quem é o broker, poderia ter uma lista (porta default do kafka 9092)
-                  configuration: # configuramos o serializer e o deserializer. A msg do kafka é representada por uma chave um valor
-                    value:
-                      deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer # Utilizaremos o Serializer e o Deserializer da confluent. Estes, já usam o schema registry, já possuí implementado a logica de pegar no schema registry e realizar validação do schema avro para manter a compatibilidade
-                      serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-                    key:
-                      deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
-                      serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
-              bindings: # define que para o tópico virtual x terá seus dados enviados para o tópico real
+              bindings:
                 checkout-created-output: # Tópico Virtual
                   destination: streaming.ecommerce.checkout.created # Tópico Real. Padrão de nomenclatura -> tipo_de_informação.nome_de_domino.entidade.ação_realizada
                   contentType: application/*+avro # ContentType HTTP
@@ -919,6 +924,20 @@ métodos equals e hashCode, toString, Construtores entre outros. Dessa forma, o 
                   group: ${spring.application.name}
                   consumer:
                     use-native-decoding: true
+          kafka:
+            properties:
+              schema:
+                registry:
+                  url: http://localhost:8081
+              specific: 
+                avro:
+                  reader: true # define como true a propriedade de leitura
+            producer: # Utilizaremos o Serializer e o Deserializer da confluent. Estes, já usam o schema registry, já possuí implementado a logica de pegar no schema registry e realizar validação do schema avro para manter a compatibilidade
+              key-serializer: org.apache.kafka.common.serialization.StringSerializer
+              value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer 
+            consumer:
+              key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+              value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
         ```
 
     - <details>
@@ -941,23 +960,137 @@ métodos equals e hashCode, toString, Construtores entre outros. Dessa forma, o 
     
     </details>
 
-  - Precisaremos criar uma classe de configuração de streaming [StreamingConfig](./src/main/java/br/com/ecommerce/checkout/config/StreamingConfig.java)
-    - Anotaremos com: 
-      - `@Configuration` do pacote `org.springframework.context.annotation.Configuration`;
-      - `@EnableBinding` do pacote `org.springframework.cloud.stream.annotation.EnableBinding`, e passaremos no value, nossas interfaces que serão criadas:
-          - Interface de Producer [CheckoutCreatedSource](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java);
-          - Interface de Consumer [PaymentPaidSink](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java)
+##### Configurando Tópicos:
+Anteriormente, executávamos ferramentas de linha de comando para criar tópicos no Kafka:
+```shell
+  docker exec -t broker kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic streaming.ecommerce.checkout.created --if-not-exists
+  docker exec -t broker kafka-topics --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic streaming.ecommerce.payment.paid --if-not-exists
+```
+Mas, com a introdução do AdminClient no Kafka, agora podemos criar tópicos de maneira programática.
 
-  - Para publicar no kafka, injetaremos o producer [CheckoutCreatedSource](./src/main/java/br/com/ecommerce/checkout/streaming/CheckoutCreatedSource.java) 
-    em nosso service [CheckoutService](./src/main/java/br/com/ecommerce/checkout/service/CheckoutService.java) e 
+Precisamos adicionar o bean KafkaAdmin Spring, que adicionará tópicos automaticamente para todos os beans do tipo NewTopic:
+```java
+  @Configuration
+  public class KafkaTopicConfig {
+      
+      @Value(value = "${kafka.bootstrapAddress}")
+      private String bootstrapAddress;
+  
+      @Bean
+      public KafkaAdmin kafkaAdmin() {
+          Map<String, Object> configs = new HashMap<>();
+          configs.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress);
+          return new KafkaAdmin(configs);
+      }
+      
+      @Bean
+      public NewTopic topic1() {
+           return new NewTopic("checkout", 1, (short) 1);
+      }
+  }
+```
+
+##### Configurando Producer:
+- Precisaremos criar uma classe de configuração de streaming [StreamingConfig](./src/main/java/br/com/ecommerce/checkout/config/StreamingConfig.java)
+  - Anotaremos com:
+    - `@Configuration` do pacote `org.springframework.context.annotation.Configuration`;
+    - Utilizaremos o bean `@Value("${}")`, para resgatar os valores de nosso [application.yml](./src/main/resources/application.yml)
+      ```java 
+        @Value("${spring.kafka.properties.schema.registry.url}")
+        private String schemaRegistryUrl;
+    
+        @Value("${spring.cloud.stream.bindings.checkout-created-output.destination}")
+        private String defaultTopic;
+      ```
+
+- Para criar mensagens, primeiro precisamos configurar um **ProducerFactory**. Para isto, criaremos na classe de
+  configuração [StreamingConfig](./src/main/java/br/com/ecommerce/checkout/config/StreamingConfig.java), nossos métodos.
+  Isso definirá a estratégia para criar instâncias do Kafka Producer.
+  ```java
+    private ProducerFactory<String, CheckoutCreatedEvent> producerFactory(final KafkaProperties kafkaProperties) {
+        Map<String, Object> configProps = kafkaProperties.buildProducerProperties();
+        configProps.put(KafkaAvroSerializerConfig.SCHEMA_REGISTRY_URL_CONFIG, schemaRegistryUrl);
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+  ```
+- Em seguida, precisamos de um **KafkaTemplate**, que envolve uma instância do Produtor e fornece métodos convenientes para
+  enviar mensagens aos tópicos do Kafka.
+  ```java
+    @Bean
+    public KafkaTemplate<String, CheckoutCreatedEvent> kafkaTemplate(final KafkaProperties kafkaProperties) {
+        val kafkaTemplate = new KafkaTemplate<>(producerFactory(kafkaProperties));
+        kafkaTemplate.setDefaultTopic(defaultTopic);
+        return kafkaTemplate;
+    }
+  ```
+
+- As instâncias do produtor são thread-safe. Portanto, o uso de uma única instância em todo o contexto do aplicativo
+  proporcionará melhor desempenho. Consequentemente, as instâncias KakfaTemplate também são thread-safe e o uso de uma
+  instância é recomendado.
+  
+#### Publicando mensagens:
+
+  - Para publicar no kafka, podemos enviar mensagens usando a classe KafkaTemplate. Para isso, injetaremos a classe em 
+    nosso service [CheckoutService](./src/main/java/br/com/ecommerce/checkout/service/CheckoutService.java) e 
+    utilizaremos os métodos configurados em nosso [KafkaTemplate](./src/main/java/br/com/ecommerce/checkout/config/StreamingConfig.java) 
+     
     ```java
-      private final CheckoutCreatedSource checkoutCreatedSource;
+        private final KafkaTemplate<String, CheckoutCreatedEvent> kafkaTemplate;
     ```
-  - Chamaremos nosso source, utilizaremos o método `output()` para conseguirmos pegar o canal do `tópico virtual`, 
-    logo em seguida iremos enviar uma mensagem dentro do nosso `send()`:
+    
+  - Chamaremos nossa instância de KafkaTemplate, e iremos enviar uma mensagem dentro do nosso método `send()`:
    ```java
-        checkoutCreatedSource.output().send(MessageBuilder.withPayload(checkoutCreatedEvent).build());
+        kafkaTemplate.send(MessageBuilder.withPayload(checkoutCreatedEvent).build());
    ```
+
+#### Consumindo mensagens:
+- Para consumir mensagens, precisamos configurar um `ConsumerFactory` e um `KafkaListenerContainerFactory`.
+  Uma vez que esses beans estão disponíveis na fábrica de bean Spring, os consumidores baseados em POJO podem ser 
+  configurados usando a anotação `@KafkaListener`.
+
+
+- A anotação `@EnableKafka` é necessária na classe de configuração (ou no contexto da aplicação [CheckoutApplication](./src/main/java/br/com/ecommerce/checkout/CheckoutApplication.java)) para permitir a detecção da anotação `@KafkaListener` em beans gerenciados por spring:
+
+
+- Em seguida, precisamos configurar o `ConsumerFactory`. Para isto, criaremos mais um método em nossa classe de configuração 
+  [StreamingConfig](./src/main/java/br/com/ecommerce/checkout/config/StreamingConfig.java). Isso definirá a estratégia 
+  para criar instâncias do Kafka Consumer.
+  ```java
+    private ConsumerFactory<String, PaymentCreatedEvent> consumerFactory(final KafkaProperties kafkaProperties) {
+        Map<String, Object> props = kafkaProperties.buildConsumerProperties();
+        KafkaAvroDeserializer kafkaAvroDeserializer = new KafkaAvroDeserializer();
+        kafkaAvroDeserializer.configure(props, false);
+        return new DefaultKafkaConsumerFactory(props, new StringDeserializer(), kafkaAvroDeserializer);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentCreatedEvent>
+    kafkaListenerContainerFactory(final KafkaProperties kafkaProperties) {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentCreatedEvent> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConcurrency(1); // definiremos a concorrência para 1
+        factory.setConsumerFactory(consumerFactory(kafkaProperties));
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD); // definiremos nosso AcknowledgingMessage como RECORD - Confirme o deslocamento após cada registro ser processado pelo ouvinte.
+        return factory;
+    }
+  ```
+  Mais sobre [ContainerProperties.AckMode](https://docs.spring.io/spring-kafka/api/org/springframework/kafka/listener/ContainerProperties.AckMode.html)
+
+
+- Em nosso projeto **Checkout**, consumiremos o retorno de **Payment**. Logo, criaremos um listener para utilizar as configurações acima:
+  - Vamos criar a classe [PaymentPaidListener](./src/main/java/br/com/ecommerce/checkout/listener/PaymentPaidListener.java) e utilizaremos o Bean `@KafkaListener(topics = "${}", groupId = "${}")`
+    para escutar o tópico com o retorno de Payment:
+    ```java
+        @KafkaListener(topics = "${spring.cloud.stream.bindings.payment-paid-input.destination}",
+                groupId = "${spring.cloud.stream.bindings.payment-paid-input.group}")
+    ```
+  - Em seguida iremos utilizar nossa classe [PaymentCreatedEvent](./src/main/java/payment/event/PaymentCreatedEvent.java), 
+    gerada por nosso [avro](./src/main/resources/avro), para resgatar nosso checkoutCode e atualizar no banco de dados.
+  ```java
+    public void handler(PaymentCreatedEvent paymentCreatedEvent) {
+        checkoutService.updateStatus(paymentCreatedEvent.getCheckoutCode().toString(), Status.APPROVED);
+    }
+  ```
 --- 
 ### Para consultarmos avros, utilizaremos o Schema Registry API:
 
