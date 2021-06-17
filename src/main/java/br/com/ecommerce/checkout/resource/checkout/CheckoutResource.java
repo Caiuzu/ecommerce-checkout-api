@@ -20,8 +20,7 @@ public class CheckoutResource {
     @PostMapping("/")
     public ResponseEntity<CheckoutResponse> create(@RequestBody CheckoutRequest checkoutRequest) {
         try {
-            final CheckoutEntity checkoutEntity = checkoutService.create(checkoutRequest)
-                    .orElseThrow(IllegalArgumentException::new);
+            final CheckoutEntity checkoutEntity = checkoutService.create(checkoutRequest);
             final CheckoutResponse checkoutResponse = CheckoutResponse.builder()
                     .code(checkoutEntity.getCode())
                     .build();

@@ -13,7 +13,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -25,7 +24,7 @@ public class CheckoutService {
     private final CheckoutRepository checkoutRepository;
     private final KafkaTemplate<String, CheckoutCreatedEvent> kafkaTemplate;
 
-    public Optional<CheckoutEntity> create(CheckoutRequest checkoutRequest) {
+    public CheckoutEntity create(CheckoutRequest checkoutRequest) {
         final CheckoutEntity checkoutEntity = getCheckoutEntity(checkoutRequest);
 
         setCheckoutRequestItems(checkoutRequest, checkoutEntity);
@@ -35,7 +34,7 @@ public class CheckoutService {
 
         kafkaTemplate.send(MessageBuilder.withPayload(checkoutCreatedEvent).build());
 
-        return Optional.of(entity);
+        return entity;
     }
 
     private CheckoutEntity getCheckoutEntity(final CheckoutRequest checkoutRequest) {
